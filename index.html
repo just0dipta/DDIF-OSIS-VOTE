@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting OSIS - SMP Harapan 3 Medan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a237e, #283593, #303f9f);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin: 20px 0;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .school-logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .school-logo i {
+            font-size: 50px;
+            color: #1a237e;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #4fc3f7;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin: 20px 0;
+            color: #bb86fc;
+        }
+
+        p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 2px #4fc3f7;
+        }
+
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 10px 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        button:hover {
+            background: #03a9f4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .candidates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .candidate-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .candidate-card.selected {
+            background: rgba(33, 150, 243, 0.3);
+            box-shadow: 0 0 0 2px #2196f3;
+        }
+
+        .candidate-card h3 {
+            margin-bottom: 10px;
+            color: #4fc3f7;
+            font-size: 1.4rem;
+        }
+
+        .candidate-image {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 4px solid rgba(79, 195, 247, 0.5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .candidate-details {
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .vision-mission-btn {
+            background: #9c27b0;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .vision-mission-btn:hover {
+            background: #8e24aa;
+        }
+
+        .vision-mission-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 0 15px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .vision-mission-content.expanded {
+            max-height: 500px;
+            padding: 15px;
+        }
+
+        .vision-mission-content h4 {
+            color: #bb86fc;
+            margin-bottom: 10px;
+        }
+
+        .vision-mission-content ul {
+            text-align: left;
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .vote-button {
+            background: #4caf50;
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 18px;
+        }
+
+        .vote-button:hover {
+            background: #43a047;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            color: #ffebee;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            color: #e8f5e9;
+        }
+
+        .info {
+            background: rgba(33, 150, 243, 0.3);
+            color: #e3f2fd;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .results {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .thank-you-message {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .thank-you-icon {
+            font-size: 4rem;
+            color: #4fc3f7;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .admin-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .admin-link a {
+            color: #4fc3f7;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .admin-link a:hover {
+            color: #bb86fc;
+            text-decoration: underline;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .candidates {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .candidate-card {
+                padding: 20px;
+            }
+            
+            .candidate-image {
+                width: 150px;
+                height: 150px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .thank-you-icon {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .school-logo {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .school-logo i {
+                font-size: 40px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            .candidate-image {
+                width: 130px;
+                height: 130px;
+            }
+            
+            .candidate-card h3 {
+                font-size: 1.2rem;
+            }
+            
+            .thank-you-icon {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="school-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>Voting OSIS 2023</h1>
+            <p>SMP Harapan 3 Medan - Pemilihan Ketua OSIS Tahun Ajaran 2023/2024</p>
+        </header>
+
+        <div id="login-section">
+            <h2><i class="fas fa-sign-in-alt"></i> Masuk untuk Voting</h2>
+            <div class="form-group">
+                <label for="nama"><i class="fas fa-user"></i> Nama Lengkap:</label>
+                <input type="text" id="nama" placeholder="Masukkan nama lengkap Anda">
+            </div>
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Password:</label>
+                <input type="password" id="password" placeholder="Masukkan password Anda">
+            </div>
+            <button id="login-btn"><i class="fas fa-sign-in-alt"></i> Masuk</button>
+            <p class="message info"><i class="fas fa-info-circle"></i> Pastikan nama dan password yang dimasukkan sudah benar.</p>
+        </div>
+
+        <div id="voting-section" class="hidden">
+            <h2><i class="fas fa-vote-yea"></i> Pilih Calon Ketua OSIS</h2>
+            <p>Silakan pilih satu calon ketua OSIS yang menurut Anda paling tepat:</p>
+            
+            <div class="candidates">
+                <div class="candidate-card" data-id="1">
+                    <img src="https://www.pngall.com/wp-content/uploads/5/Profile-Transparent.png" alt="Sofia Kamila Harahap" class="candidate-image">
+                    <h3>Sofia Kamila Harahap</h3>
+                    <p>Kelas: VIII A</p>
+                    <div class="candidate-details">
+                        <button class="vision-mission-btn"><i class="fas fa-book-open"></i> Lihat Visi & Misi</button>
+                        <div class="vision-mission-content">
+                            <h4>Visi:</h4>
+                            <p>Mewujudkan OSIS yang kreatif, inovatif, dan berprestasi</p>
+                            <h4>Misi:</h4>
+                            <ul>
+                                <li>Meningkatkan kegiatan ekstrakurikuler</li>
+                                <li>Menjalin hubungan baik dengan seluruh siswa</li>
+                                <li>Mengadakan event-event kreatif</li>
+                                <li>Meningkatkan prestasi akademik dan non-akademik</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="candidate-card" data-id="2">
+                    <img src="https://www.pngall.com/wp-content/uploads/5/Profile-Transparent.png" alt="Adelia Faranisa Zava" class="candidate-image">
+                    <h3>Adelia Faranisa Zava</h3>
+                    <p>Kelas: VIII B</p>
+                    <div class="candidate-details">
+                        <button class="vision-mission-btn"><i class="fas fa-book-open"></i> Lihat Visi & Misi</button>
+                        <div class="vision-mission-content">
+                            <h4>Visi:</h4>
+                            <p>Menjadikan OSIS sebagai wadah pengembangan bakat dan minat siswa</p>
+                            <h4>Misi:</h4>
+                            <ul>
+                                <li>Mengoptimalkan potensi setiap siswa</li>
+                                <li>Menjalin komunikasi yang baik dengan guru dan siswa</li>
+                                <li>Meningkatkan kegiatan keagamaan</li>
+                                <li>Mengadakan lomba-lomba untuk mengasah bakat</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="candidate-card" data-id="3">
+                    <img src="https://www.pngall.com/wp-content/uploads/5/Profile-Transparent.png" alt="Alisya Dia Zahira" class="candidate-image">
+                    <h3>Alisya Dia Zahira</h3>
+                    <p>Kelas: VIII C</p>
+                    <div class="candidate-details">
+                        <button class="vision-mission-btn"><i class="fas fa-book-open"></i> Lihat Visi & Misi</button>
+                        <div class="vision-mission-content">
+                            <h4>Visi:</h4>
+                            <p>Membentuk OSIS yang solid, disiplin, dan berkarakter</p>
+                            <h4>Misi:</h4>
+                            <ul>
+                                <li>Menegakkan kedisiplinan di sekolah</li>
+                                <li>Meningkatkan rasa tanggung jawab</li>
+                                <li>Mengadakan program mentoring</li>
+                                <li>Memperkuat karakter kepemimpinan siswa</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="candidate-card" data-id="4">
+                    <img src="https://www.pngall.com/wp-content/uploads/5/Profile-Transparent.png" alt="Nadhira Feliza" class="candidate-image">
+                    <h3>Nadhira Feliza</h3>
+                    <p>Kelas: VIII C</p>
+                    <div class="candidate-details">
+                        <button class="vision-mission-btn"><i class="fas fa-book-open"></i> Lihat Visi & Misi</button>
+                        <div class="vision-mission-content">
+                            <h4>Visi:</h4>
+                            <p>Mewujudkan OSIS yang peduli lingkungan dan sosial</p>
+                            <h4>Misi:</h4>
+                            <ul>
+                                <li>Mengadakan program peduli lingkungan</li>
+                                <li>Melakukan kegiatan sosial ke panti asuhan</li>
+                                <li>Menggalakkan gerakan hemat energi</li>
+                                <li>Menjalin kerjasama dengan komunitas sosial</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="candidate-card" data-id="5">
+                    <img src="https://www.pngall.com/wp-content/uploads/5/Profile-Transparent.png" alt="Atha Pagoh Llogani" class="candidate-image">
+                    <h3>Atha Pagoh Llogani</h3>
+                    <p>Kelas: VIII D</p>
+                    <div class="candidate-details">
+                        <button class="vision-mission-btn"><i class="fas fa-book-open"></i> Lihat Visi & Misi</button>
+                        <div class="vision-mission-content">
+                            <h4>Visi:</h4>
+                            <p>Menciptakan OSIS yang modern, komunikatif, dan aspiratif</p>
+                            <h4>Misi:</h4>
+                            <ul>
+                                <li>Memanfaatkan teknologi untuk kemajuan OSIS</li>
+                                <li>Meningkatkan komunikasi melalui media sosial</li>
+                                <li>Menerima masukan dari seluruh siswa</li>
+                                <li>Mengadakan event berbasis teknologi</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="vote-btn" class="vote-button"><i class="fas fa-paper-plane"></i> Kirim Vote Saya</button>
+            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+
+        <div id="results-section" class="hidden">
+            <div class="thank-you-message">
+                <div class="thank-you-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Terima Kasih Telah Melakukan Voting!</h2>
+                <p>Suara Anda telah tercatat dan sangat berarti untuk kemajuan OSIS SMP Harapan 3 Medan.</p>
+                <p>Hasil pemilihan akan diumumkan setelah proses voting selesai.</p>
+            </div>
+            <button id="back-to-login"><i class="fas fa-arrow-left"></i> Kembali ke Login</button>
+        </div>
+
+        <div class="admin-link">
+            <a href="admin.html"><i class="fas fa-cog"></i> Panel Admin</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2023 Sistem Voting OSIS - SMP Harapan 3 Medan</p>
+    </footer>
+
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyAOKl1IV8cGfHhpSPXidFX2x060PYkLafA",
+          authDomain: "hartig-project.firebaseapp.com",
+          databaseURL: "https://hartig-project-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "hartig-project",
+          storageBucket: "hartig-project.firebasestorage.app",
+          messagingSenderId: "584839002596",
+          appId: "1:584839002596:web:5d99bb50508daec8db6ff1"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Data pemilih
+        const voters = {
+    //7A-1
+    "Abimanyoe Aryo Halim": "xP7aB4qJ",
+    "Affan Jailani Haehap": "mQ9rT3vL",
+    "Afiqah Ayudia Nimeesya Nasution": "gK8wY6zC",
+    "Alfian Rizkie Lubis": "hF4jP7kX",
+    "Alvaro Zhaliandy": "zN2mQ9sD",
+    "Aviqah zahran Ghaisani": "pW3xT6vB",
+    "Dhaffin Azka Putra Darmawan": "rM8kG5yZ",
+    "Fayra Azwa Maraksa": "tJ9nF4pH",
+    "Gibran Ramadhan Wijaya Hasrimi": "qL7bD8xC",
+    "Hafiz Al Rasyid": "vN3yP6kQ",
+    "Hisyam Dzaky Islamy Lubis": "kH9jL4wT",
+    "Ilham Raihan Sukamoto": "mC7gZ5qV",
+    "Latisha Adzra Handoko": "yP8nJ3xR",
+    "M. Azka Fanani Daulay": "wT6vK9pB",
+    "MIchelle Jentra Tarigan": "gF4kN7sM",
+    "Muhammad Rafi": "aJ5yH8qX",
+    "Oktha Pratama Kaban": "zQ9wP6mC",
+    "Qinala Windriadi": "rL8tK4jG",
+    "Rafif Akhdan Faika": "xH3pN7qT",
+    "Rieca Fajrina Hafizah Lubis": "mD6gW9yV",
+    "Rifan Arezqi": "kN4jL8pB",
+    "Sabina Hafidzah Abira Lubis": "pC7xM3wT",
+    "Shazia Asha Aufi": "tF9vG6yH",
+    "Siti Haliza Munirah": "yJ8kP5qX",
+    "Syahira Ulfa": "rT3gN9pL",
+    "Syaira Aqifa Naila": "mH6wF8kC",
+    "Syifa Azhara Winata": "aL7yK4qV",
+    "Zaskia Amira": "zP9tM3xG",
+    "Zhafif Amadeo Syahputra": "kJ8nH6wB",
+
+    //7B-1
+    "Abizard Oezil Anindra": "vT3yK9pL",
+    "Agha Ihsan Yustana": "mH6gW8kX",
+    "Aliya Nadira Hasibuan": "aF7nJ4qC",
+    "Alvaro Virendra Tarigan": "zP9tM6xV",
+    "Anindya Gothra Athidira ": "kL8jH5wB",
+    "Dzaka Hanan Lathif": "rT4gN9pQ",
+    "Faidh Arkan Mauranda Hsb": "mJ6wF8kC",
+    "Hadif Rizki Ramadhan": "yL7yK4qV",
+    "Hafidz Rafiandra Nasution": "pT9tM3xG",
+    "Jihan Talita Ulfa": "kJ8nH6wB",
+    "Khaira Syarafana Ramadhani": "xT3yK9pL",
+    "Melody Nasyitha Salsabila Siagian": "mH6gW8kX",
+    "Mhd Rafa Nurwan": "aF7nJ4qC",
+    "Muhammad Alfaiz Mahadika": "zP9tM6xV",
+    "Muhammad Anggi Nafil Siregar": "kL8jH5wB",
+    "Muhammad Fikri Pratama": "rT4gN9pQ",
+    "Naira Salsabila": "mJ6wF8kC",
+    "Natasya Hummaira Ilham": "yL7yK4qV",
+    "Putri Bintang Rania": "pT9tM3xG",
+    "Rasya Alfaruq Haristian": "kJ8nH6wB",
+    "Razwa Azzahra Ginting": "xT3yK9pL",
+    "Rizky Aditya Artami": "mH6gW8kX",
+    "Sofhia Nakita Ufairah": "aF7nJ4qC",
+    "Sutan Kemal Artanugroho": "zP9tM6xV",
+    "T.Diaz Syahputra": "kL8jH5wB",
+    "Tengku Farradiba Queen Nurin Fausyah Noor": "rT4gN9pQ",
+    "Tiara Hana Simargolang": "mJ6wF8kC",
+    "Xaquille Aazraqi Al Asag": "yL7yK4qV",
+    "Zareena Zahra Hanania": "pT9tM3xG",
+    "Zivanna Arizta Putri": "kJ8nH6wB",
+
+    //7C-1
+    "Al- Aqsha Dayyan Fathani Setyawan": "gK9nJ7pX",
+    "Alby Husain Hasibuan": "wT4xL8qM",
+    "Allora Chantiqa Hanan": "mF6yK3vC",
+    "Annisa Maharany Tarigan": "rJ9gH5kQ",
+    "Azka Hidayat Bahri Nasution": "xL7nP8qV",
+    "Chairul Ramadhan Siregar": "zH4wF9tB",
+    "Danesh Xavier Sibagariang": "kP8jG6mT",
+    "Fairuz Barkah Hudaibi Panggabean": "aM3nJ7vL",
+    "Fondstella Sulaiman": "tD6yK9pQ",
+    "Hafizh Agna Zulfahmi": "yL8kF4wX",
+    "Hanifa Dzakiyah": "mG7nP5qC",
+    "Kamilah Adlillah Tahel": "rJ9gT3vH",
+    "Kechia Nikita Shaqi": "xL6nK8pV",
+    "Khaniya Shalu Ahmad": "zH4wF9tB",
+    "Makhzuhra Zihni Tanjung": "kP8jG6mT",
+    "Muhammad Arzaq Zhafran Sitorus": "aM3nJ7vL",
+    "Muhammad Dzaky Kamil": "tD6yK9pQ",
+    "Muhammad Ibrahim": "yL8kF4wX",
+    "Muhammad Rizky Husaini": "mG7nP5qC",
+    "Nafisah Zafirah Roseno": "rJ9gT3vH",
+    "Naurah Hayyu": "xL6nK8pV",
+    "Noval Prayoga": "zH4wF9tB",
+    "Prince Hessel Akbar Sirait": "kP8jG6mT",
+    "Raina Ghasani Mahbub": "aM3nJ7vL",
+    "Rezki Wira Pratama": "tD6yK9pQ",
+    "Sultan Ahmad El Fath Nasution": "yL8kF4wX",
+    "Syakhira Nadine Tampubolon": "mG7nP5qC",
+    "Syifa Syaqila": "rJ9gT3vH",
+    "Yuriashila Sastra Maheswari": "xL6nK8pV",
+    "Zibran Garin Nurseha": "zH4wF9tB",
+
+    //7D-1
+    "Airlangga Yudha Zandra": "hG9nJ7pX",
+    "Aisyah Kasyifa": "vT4xL8qM",
+    "Alun Naditya": "nF6yK3vC",
+    "Awfar Achsan Sibuea": "qJ9gH5kQ",
+    "Ayira Kamila": "xL7nP8qV",
+    "Defa Aqeel Pranaja": "zH4wF9tB",
+    "Dyaz Saamiy Muhammad": "kP8jG6mT",
+    "Dzikri Aqilah Fildzah Papilaya Pasaribu": "aM3nJ7vL",
+    "Gybran Jogi": "tD6yK9pQ",
+    "Haikal Irawan Damanik": "yL8kF4wX",
+    "Kayyisa Elma Mazea": "mG7nP5qC",
+    "Khaira Zuhra Alwi": "rJ9gT3vH",
+    "Khansa Alesha Farzana": "xL6nK8pV",
+    "Miqeyza Safeeka": "zH4wF9tB",
+    "Mona Syakira Ritonga": "kP8jG6mT",
+    "Muhammad Azzam Faisal Lubis": "aM3nJ7vL",
+    "Muhammad Ibrahim Kelana": "tD6yK9pQ",
+    "Muhammad Reza Al Fatih Daulay": "yL8kF4wX",
+    "Nadira Shahana": "mG7nP5qC",
+    "Najwan Azhim Tiofani": "rJ9gT3vH",
+    "Ovick Syathir Hajid": "xL6nK8pV",
+    "Putri Sakinah Siregar": "zH4wF9tB",
+    "Rachel Rizkia Putri": "kP8jG6mT",
+    "Rafaat Akbar Ar Rafie Simbolon": "aM3nJ7vL",
+    "Rifqie Khairy Rachman": "tD6yK9pQ",
+    "Shabara Zhafiray Syafhas": "yL8kF4wX",
+    "Sutan Arfa Harahap": "mG7nP5qC",
+    "T.Zalikha Rizqy Tafly": "rJ9gT3vH",
+    "Yuriqani Berlian Sayuti": "xL6nK8pV",
+    "Zia Falisha Arthajaya": "zH4wF9tB",
+
+    //8E-1
+    "Al Fath Aqil Khaleev": "dK7pL9mX",
+    "Alifsyah Alaric Pasaribu": "mT3yG6qV",
+    "Alisha Azizi Purboyo": "hN4jW8kC",
+    "Alya Dayana Putri Wilhan": "pL9xH5wB",
+    "Amiira Dafina Ulya": "zT6kM8qC",
+    "Asya Dzahin Pulungan": "gF3jL7pX",
+    "Azura Khansa Shafia": "kN9mH4wV",
+    "Bagas Fathan Atthoriq": "rP6tK8qG",
+    "Balqisya Nailah Frinando": "xJ4wF9tM",
+    "Ben Aiy Muhammad": "vT3kG7pL",
+    "Danish Abrisham Harahap": "mH9nL6wB",
+    "Danish Faeyza Ahmad": "aF4pK8qV",
+    "Danish Riffat Fathullah": "zT7xM3wC",
+    "Dzaki Azkatyaga Tarigan": "kJ6gH9pX",
+    "Dzargi Aufa Darshah": "pN8mL5qG",
+    "Fariz Abrar Alghaisan Daulay": "xT3kF7wB",
+    "Hafidh Arya Ananda": "mJ9nH6pL",
+    "Karina Nur Shidqia Siregar": "rF4tK8qV",
+    "Kaysha Almahira Nasution": "zT7xM3wC",
+    "Khalyla Swietenia Ivana Noor": "kJ6gH9pX",
+    "M. Azzan Islami": "pN8mL5qG",
+    "Mahirah Shabir": "xT3kF7wB",
+    "Malik Ahmad Bairawi": "mJ9nH6pL",
+    "Muhammad Albany Athayaa Adnani": "rF4tK8qV",
+    "Muhammad Azzam Mubarak": "zT7xM3wC",
+    "Qalila Faci Nasution": "kJ6gH9pX",
+    "Raditya Wijaya Simatupang": "pN8mL5qG",
+    "Raffi Caesar Barus": "xT3kF7wB",
+    "Salsabila Az-Zahra Batubara": "mJ9nH6pL",
+    "Shibaa Rumaisha Nur": "rF4tK8qV",
+    "Sultan Akhtar Syarif": "zT7xM3wC",
+    "Yaffa Azita Hutabarat": "kJ6gH9pX",
+    // 8A-1
+    "Ahmad Fahri Alkhalifi": "x2f7a9pQ",
+    "Akmal Ikhsan Winandar": "L9k1m3tZ",
+    "Amira Tsary Putri Hermawan": "c8V4w2rT",
+    "Arkandhana Azka Fahmi": "p6J9h0eB",
+    "Audrey Keysha Az Zahra": "q1M7x8nL",
+    "Bazliah Salma": "f5H2j9sD",
+    "Danish Azka Arraziq": "z4R8p6cQ",
+    "Diva Aish Syakira": "n3T7b1mV",
+    "Diza Khansa Mazaya": "u9K2v5gH",
+    "Dyandra Audrey Feiza": "r6L3d7pJ",
+    "Faiz Rizqullah Pratama Zulad": "b8F5h4zK",
+    "Ibrah Rustina Utani Lubis": "x3J7k9qM",
+    "M Marsa Amza Shauqi": "t5P1z8nG",
+    "M Rafli Faiz": "k9H3m4rL",
+    "M. Dzakwan Athalah Fidoli Siregar": "s4V6b2qN",
+    "Malikha Queen Azmi": "e7D9p0hB",
+    "Malikha Zavania Arasya": "y2N4w8fK",
+    "Mangarap Batang Taris Hasibuan": "v6G5r3zQ",
+    "Muhammad Ar Rasyid Hutasuhut": "m1H8k9xR",
+    "Muhammad Raka Alfarsi Damanik": "o7J4p2tS",
+    "Muhammad Pekokyah Taringan": "i9Q6z3gL",
+    "Muhammad Zafran Ghaffar": "a3R7x8nK",
+    "Nabila Yasmin Hashifah": "d5W1b9hQ",
+    "Nayra Octiva Renadha": "g8F2k4rJ",
+    "Radithya Arkaan Siregar": "w3E7p5mT",
+    "Shira Apriliana": "u9M4k6dB",
+    "Sis Suatmaja": "z2H8t3nL",
+    "Sofia Kamila Harahap": "q5K1p9cJ",
+    "Syafira Karunia Siregar": "f7V4r6mQ",
+    "Syarifah Alya Azmi Pulungan": "l3N9x2dH",
+    "T Hassan Quinn": "b6P7j8gT",
+    "Zahirah Nurul Adha": "o1K5m4vR",
+
+    // 8B-1
+    "Adelia Faranisa Zava": "a8f7c2e9",
+    "Ahmad Fadhil Arafat Addari Nasution": "b9d3k4h1",
+    "Alvino Ghaisan Aprilio Wiryadi": "c4e6j8m2",
+    "Athaa Atsiliah Infanto": "d1f9p7r3",
+    "Azka Igri Raihanah": "e5g3k2n8",
+    "Bella Azzalea": "f2h6m4q1",
+    "Cheszka Najla Nathifa": "g7j9p8s5",
+    "Daafa Alfari Pohan": "h3k2l8n7",
+    "Dipta Mahija Valiant": "i6m4n2r5",
+    "Eza Ahmadi Neazad": "j8n3p7q4",
+    "Farhan Abrar Natawo": "k1p6r5s8",
+    "Felisha Azzahra Rizal": "l9q4s8t2",
+    "Irfan Yusran Berutu": "m2r8t6u5",
+    "Khairuna Rizka Manik": "n5s3u7v1",
+    "M. Raka Putra Balka": "o8t4v2w6",
+    "Muhammad Al Ghifari Rozi Hasibuan": "p1u9w3x7",
+    "Muhammad Daanish Gading Al-Hafiz": "q3v5x4y2",
+    "Muhammad Ghafiral Khatna": "r7w2y6z8",
+    "Muhammad Luthfi Hasibuan": "s4x8z3a1",
+    "Nafekha Janetta Khairum": "t6y5a2b7",
+    "Naura Nurfahani Detra": "u2z3b4c8",
+    "Novan Al Habsy": "v8a7c6d3",
+    "Raiz Putra Akbar Ginting": "w1b9d5e4",
+    "Rakan Khadafi Pohan": "x3c4e7f9",
+    "Rizky Alifia Harista": "y5d6f2g8",
+    "Rr. Byanca Atthahirah Avgie": "z7e3g1h5",
+    "Shafina Natasha Rudi": "a4f5h8i2",
+    "T. Dilfa Maulana": "b6g7i3j9",
+    "Tengku Said Achmad Raffli": "c8h2j4k6",
+    "Yafe Syauqie Bariqa": "d1i9k5l8",
+    "Zeeshan Arkaan": "e3j6l2m7",
+
+    // 8C-1
+    "Aldrich Azka": "f4k7m3n9",
+    "Alisya Dia Zahira": "g6l8n4o1",
+    "Audy Ashalina": "h9m2o5p6",
+    "Azman Rizvan": "i3n7p8q2",
+    "Baim Putra Gunawan": "j5o9q6r3",
+    "Bintang Luthfi Ardana": "k8p1r7s4",
+    "Carissa Putri Suhana": "l2q4s8t9",
+    "Dastan Noushzad Anindra": "m6r3t2u5",
+    "Fadhil Muhammad Althaf": "n9s5u4v7",
+    "Fitiya Rupani Purba": "o1t7v3w8",
+    "Ghania Nahiza Faira Pane": "p4u6w9x1",
+    "Hana Ilmi Zahra": "q7v8x2y3",
+    "Khanaya Adilla Siregar": "r2w3y5z9",
+    "M Habib Haikal": "s6x7z1a4",
+    "Maulana Irham Nasution": "t8y9a2b5",
+    "Muhamad Alkahfi Akbar Triasa": "u3z4b6c7",
+    "Muhammad Zaki Fadhillah": "v5a7c9d2",
+    "Nabihan Azima Khaira": "w8b9d3e6",
+    "Nadhira Feliza": "x2c4e5f7",
+    "Naufal Hilmi Maika": "y7d8f6g1",
+    "Nikesha Khalish Fawnia": "z9e3g7h8",
+    "Qafka Deka": "a3f5h2i9",
+    "Qalisya Daniya Rahman": "b4g6i8j2",
+    "Raisa Rafania Siddik Lubis": "c7h9j3k5",
+    "Raya Bening Batubara": "d1i2k4l8",
+    "Razil Uwais Nuzula Pulungan": "e6j8l9m3",
+    "Rifath Gizlan Arafah": "f9k1m5n7",
+    "Rizqa Muyassarrah Puan Handoyo": "g2l3n8o4",
+    "Sabqi Wistara Syarief Siregar": "h5m6o9p2",
+    "Siti Aisyah Ramadhani Simanjuntak": "i8n7p3q6",
+    "Syahira Inayah Rizqi": "j3o4q5r8",
+
+    // 8D-1
+    "Alghifari Anindra Taufik": "k1r5t8u3",
+    "Alisha Azzahra Nasution": "l4s6u9v7",
+    "Argie Anargia Al Fath": "m7t8v2w4",
+    "Arsyaqila Mianda Mahdi": "n2u3w5x6",
+    "Arya Abisenna Nugroho": "o5v6x8y2",
+    "Atha Pagoh Logani Ginting": "p8w9y1z4",
+    "Balqis Adzra": "q1x2z3a7",
+    "Devanta Arfa Aydin": "r3y4a5b8",
+    "Encik Zhafira Deliza Fitri": "s6z7b9c1",
+    "Eshal Akifa Naila": "t9a1c2d3",
+    "Ilfana Amelia Audry": "u2b3d4e9",
+    "Keanu Athallah Akbar Pohan": "v5c6e7f2",
+    "Michi Soesanto Putri": "w8d9f1g3",
+    "Muhammad Faizi Santoso": "x1e2g3h4",
+    "Muhammad Nabil Hibatullah": "y3f4h5i7",
+    "Muhammad Rafki Abgory Ginting": "z6g7i8j1",
+    "Muhammad Umar Khalid": "a9h1j2k4",
+    "Najwa Khalilah Putri Riawan": "b2i3k5l6",
+    "Omar Fattahul Muhammad Hasibuan": "c4j5l7m8",
+    "Rafa Atharizz Ryandra": "d7k8m9n2",
+    "Raisya Salsabila Hsb": "e1l2n3o4",
+    "Raziq Naufal Ritonga": "f3m4o5p9",
+    "Sarah Afifah Syahrun": "g5n6p7q1",
+    "Senandung Zuhrah Fadhilah Hafel": "h7o8q9r2",
+    "Shanaz Azura": "i9p1r2s3",
+    "Shofi Aisyah Aqila Panjaitan": "j2q3s4t5",
+    "Syahirah Az-Zahra Batubara": "k4r5t6u7",
+    "Sylvana Nursakinah Hafid Raditya": "l6s7u8v9",
+    "Tengku Anaqie Anhar Sinar": "m8t9v1w2",
+    "Thabrani Manurung": "n1u2w3x4",
+    "Zhya Ziandra Kurniawan": "o3v4x5y6",
+    "Zidan Ali Haziq": "p5w6y7z8",
+
+    // 8E-1
+    "Adinda Aisyah Raisya Fairuziah": "aX3pWq7L",
+    "Alexa Angelica": "kM8rJs2N",
+    "Anayya Shafa Nur Khalila": "zR5gVh9Q",
+    "Angga Pranata Tarigan": "uT7dXc4P",
+    "Assyifa Aurelia Putri": "oL9kQm3S",
+    "Ayesha Ghina Khairaf": "bH6rTp8Z",
+    "Bayu Langit Samudera": "dJ4yFs6X",
+    "Faeyza Dira Utama Lubis": "mC8nVr5H",
+    "Fajri Iksan Tumangger": "wP3kZs7B",
+    "Fathan Raziqy Adwin": "hS6qMp4V",
+    "Fayaadh Al Asag": "jL2vGh9D",
+    "Firza Adelia Br Sembiring": "gN7xKp1Q",
+    "Kayla Qonita": "tD5yWm8L",
+    "Keano Nayaka Rauf Ginting": "rF4kXp3C",
+    "Khalisa Aruna Arsanggayu": "nG6dVq7T",
+    "M. Rasya Athaya D.Y": "xQ8mJh2Z",
+    "Muhammad Audri Khaliq": "lH9sWp4B",
+    "Muhammad Fachrul Rozi": "cJ3gKr7M",
+    "Muhammad Gilang Faliandra": "vN5tHp8L",
+    "Muhammad Ilham Arifin": "fS7xWq2G",
+    "Muhammad Reyhan Akbar": "yP4mVh9D",
+    "Mutia Ghassania": "kR6dXp5J",
+    "Nabillah Marsha Fahira Rehulina Sen": "qT8sGh3L",
+    "Radanica Latifah Br Tarigan": "pC5kVm7H",
+    "Raffa Ansori Hutasuhut": "eL9tQp4X",
+    "Rasikha Khairiyah Nasution": "zN2vGh8K",
+    "Risa Ramadhani": "oJ6mWp3T",
+    "Shadrina Zaahira Lubis": "gF4dXs9B",
+    "Shazfa Khayyiirah A Fazri": "uH7kQm2P",
+    "Shiffa Aura Syafira": "aT3yVp6L",
+    "Siti Raisya Syabilah": "wC9rGm5X",
+    "Zhahran Prayata Nugroho": "hP2kJs8D",
+    "Zianka Ameera Zibacher": "mL5vXp4Q"    
+};
+
+
+        // Elemen DOM
+        const loginSection = document.getElementById('login-section');
+        const votingSection = document.getElementById('voting-section');
+        const resultsSection = document.getElementById('results-section');
+        
+        const namaInput = document.getElementById('nama');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('login-btn');
+        const voteBtn = document.getElementById('vote-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const backToLoginBtn = document.getElementById('back-to-login');
+        
+        const candidateCards = document.querySelectorAll('.candidate-card');
+        const visionMissionBtns = document.querySelectorAll('.vision-mission-btn');
+        
+        // Variabel state
+        let currentUser = null;
+        let selectedCandidate = null;
+
+        // Event Listeners
+        loginBtn.addEventListener('click', login);
+        voteBtn.addEventListener('click', submitVote);
+        logoutBtn.addEventListener('click', logout);
+        backToLoginBtn.addEventListener('click', () => {
+            resultsSection.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+        });
+        
+        candidateCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                // Jangan pilih kandidat jika yang diklik adalah tombol visi misi
+                if (e.target.classList.contains('vision-mission-btn') || 
+                    e.target.closest('.vision-mission-btn')) {
+                    return;
+                }
+                
+                candidateCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedCandidate = card.getAttribute('data-id');
+            });
+        });
+        
+        // Tombol visi misi
+        visionMissionBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const content = this.nextElementSibling;
+                content.classList.toggle('expanded');
+                
+                if (content.classList.contains('expanded')) {
+                    this.innerHTML = '<i class="fas fa-times"></i> Tutup Visi & Misi';
+                } else {
+                    this.innerHTML = '<i class="fas fa-book-open"></i> Lihat Visi & Misi';
+                }
+            });
+        });
+
+        // Fungsi untuk login
+        function login() {
+            const nama = namaInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (!nama || !password) {
+                showMessage('error', 'Nama dan password harus diisi!');
+                return;
+            }
+            
+            // Cek apakah nama ada dalam daftar pemilih
+            if (voters.hasOwnProperty(nama)) {
+                // Cek password
+                if (voters[nama] === password) {
+                    // Cek status voting di Firebase
+                    database.ref('voters/' + nama).once('value')
+                        .then(snapshot => {
+                            const voterData = snapshot.val();
+                            
+                            if (voterData && voterData.hasVoted) {
+                                // Jika sudah voting, tampilkan terima kasih
+                                showMessage('info', 'Anda sudah melakukan voting. Terima kasih!');
+                                showThankYou();
+                            } else {
+                                // Jika belum voting, tampilkan halaman voting
+                                currentUser = nama;
+                                loginSection.classList.add('hidden');
+                                votingSection.classList.remove('hidden');
+                            }
+                        })
+                        .catch(error => {
+                            showMessage('error', 'Terjadi kesalahan: ' + error.message);
+                        });
+                } else {
+                    showMessage('error', 'Password salah!');
+                }
+            } else {
+                showMessage('error', 'Nama tidak terdaftar sebagai pemilih!');
+            }
+        }
+
+        // Fungsi untuk submit vote
+        function submitVote() {
+            if (!selectedCandidate) {
+                showMessage('error', 'Silakan pilih calon ketua OSIS terlebih dahulu!');
+                return;
+            }
+            
+            // Update status voting pemilih
+            database.ref('voters/' + currentUser).set({
+                hasVoted: true,
+                votedFor: selectedCandidate,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Update jumlah vote untuk kandidat
+            database.ref('candidates/' + selectedCandidate + '/votes').transaction(currentVotes => {
+                return (currentVotes || 0) + 1;
+            });
+            
+            // Update daftar pemilih untuk kandidat
+            database.ref('candidates/' + selectedCandidate + '/voters/' + currentUser).set(true);
+            
+            // Tampilkan halaman terima kasih
+            showThankYou();
+        }
+
+        // Fungsi untuk menampilkan halaman terima kasih
+        function showThankYou() {
+            votingSection.classList.add('hidden');
+            loginSection.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+        }
+
+        // Fungsi untuk menampilkan pesan
+        function showMessage(type, text) {
+            // Hapus pesan sebelumnya
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // Buat pesan baru
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${text}`;
+            
+            // Tambahkan pesan ke bagian login
+            loginSection.appendChild(message);
+            
+            // Hapus pesan setelah 5 detik
+            setTimeout(() => {
+                message.remove();
+            }, 5000);
+        }
+
+        // Fungsi logout
+        function logout() {
+            currentUser = null;
+            selectedCandidate = null;
+            namaInput.value = '';
+            passwordInput.value = '';
+            candidateCards.forEach(card => card.classList.remove('selected'));
+            
+            // Tutup semua visi misi yang terbuka
+            document.querySelectorAll('.vision-mission-content').forEach(content => {
+                content.classList.remove('expanded');
+            });
+            document.querySelectorAll('.vision-mission-btn').forEach(btn => {
+                btn.innerHTML = '<i class="fas fa-book-open"></i> Lihat Visi & Misi';
+            });
+            
+            votingSection.classList.add('hidden');
+            resultsSection.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+        }
+
+        // Inisialisasi data kandidat jika belum ada
+        function initializeCandidates() {
+            database.ref('candidates').once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        const candidates = {
+                            1: { name: "Sofia Kamila Harahap", votes: 0, voters: {} },
+                            2: { name: "Adelia Faranisa Zava", votes: 0, voters: {} },
+                            3: { name: "Alisya Dia Zahira", votes: 0, voters: {} },
+                            4: { name: "Nadhira Feliza", votes: 0, voters: {} },
+                            5: { name: "Atha Pagoh Llogani", votes: 0, voters: {} }
+                        };
+                        database.ref('candidates').set(candidates);
+                    }
+                });
+        }
+
+        // Jalankan inisialisasi saat halaman dimuat
+        initializeCandidates();
+    </script>
+</body>
+</html>
