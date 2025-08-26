@@ -98,7 +98,8 @@
             font-weight: 600;
         }
 
-        input[type="password"] {
+        input[type="password"],
+        input[type="text"] {
             width: 100%;
             padding: 12px 15px;
             border: none;
@@ -109,7 +110,8 @@
             transition: all 0.3s;
         }
 
-        input[type="password"]:focus {
+        input[type="password"]:focus,
+        input[type="text"]:focus {
             outline: none;
             background: rgba(255, 255, 255, 0.25);
             box-shadow: 0 0 0 2px #4fc3f7;
@@ -278,6 +280,7 @@
         .back-link {
             text-align: center;
             margin-top: 20px;
+            margin-bottom: 10px;
         }
 
         .back-link a {
@@ -297,6 +300,86 @@
             font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.6);
             margin-top: 10px;
+        }
+        
+        .search-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .search-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .search-result.hidden {
+            display: none;
+        }
+        
+        .search-header {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #bb86fc;
+        }
+        
+        .search-count {
+            text-align: center;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        
+        .password-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .password-item:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateX(5px);
+        }
+        
+        .password-name {
+            font-weight: 600;
+            color: #4fc3f7;
+            flex: 1;
+        }
+        
+        .password-value {
+            font-weight: bold;
+            background: rgba(79, 195, 247, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-left: 10px;
+            font-family: monospace;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .copy-btn {
+            background: #9c27b0;
+            padding: 8px 12px;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        
+        .copy-btn:hover {
+            background: #8e24aa;
+        }
+        
+        .no-result {
+            text-align: center;
+            padding: 20px;
+            color: #ffebee;
+            font-style: italic;
         }
     </style>
 </head>
@@ -355,6 +438,24 @@
                 <p class="last-updated" id="last-updated">Terakhir diperbarui: -</p>
             </div>
             
+            <!-- Bagian Pencarian Password -->
+            <div class="search-section">
+                <h3><i class="fas fa-search"></i> Cari Password Pemilih</h3>
+                <div class="form-group">
+                    <label for="search-name"><i class="fas fa-user"></i> Nama Pemilih:</label>
+                    <input type="text" id="search-name" placeholder="Masukkan nama lengkap atau sebagian nama">
+                </div>
+                <button id="search-btn"><i class="fas fa-search"></i> Cari Password</button>
+                
+                <div id="search-result" class="search-result hidden">
+                    <div class="search-header">
+                        <h4>Hasil Pencarian:</h4>
+                    </div>
+                    <div class="search-count" id="search-count"></div>
+                    <div id="password-results-container"></div>
+                </div>
+            </div>
+            
             <button id="admin-logout-btn"><i class="fas fa-sign-out-alt"></i> Logout Admin</button>
         </div>
 
@@ -364,7 +465,7 @@
     </div>
 
     <footer>
-        <p>© 2025 Panel Admin Voting OSIS - DIPTA/DILFA</p>
+        <p>© 2025 Panel Admin Voting OSIS - DIPTTA/DILFA</p>
     </footer>
 
     <script>
@@ -378,12 +479,13 @@
           messagingSenderId: "584839002596",
           appId: "1:584839002596:web:5d99bb50508daec8db6ff1"
         };
+
         // Inisialisasi Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
         // Data pemilih (harus sama dengan di file index.html)
-        const voters = {
+const voters = {
     //7A-1
     "Abimanyoe Aryo Halim": "xP7aB4qJ",
     "Affan Jailani Haehap": "mQ9rT3vL",
@@ -730,13 +832,20 @@
         const votersContainer = document.getElementById('voters-container');
         const lastUpdatedEl = document.getElementById('last-updated');
         
+        const searchNameInput = document.getElementById('search-name');
+        const searchBtn = document.getElementById('search-btn');
+        const searchResult = document.getElementById('search-result');
+        const searchCountEl = document.getElementById('search-count');
+        const passwordResultsContainer = document.getElementById('password-results-container');
+        
         // Password admin
-        const adminPassword = "admin123";
+        const adminPassword = "osis2025";
 
         // Event Listeners
         adminLoginBtn.addEventListener('click', adminLogin);
         adminLogoutBtn.addEventListener('click', adminLogout);
         resetVotesBtn.addEventListener('click', resetVotes);
+        searchBtn.addEventListener('click', searchPassword);
 
         // Fungsi untuk login admin
         function adminLogin() {
@@ -759,6 +868,84 @@
             adminSection.classList.add('hidden');
             adminLoginSection.classList.remove('hidden');
             adminPasswordInput.value = '';
+            searchResult.classList.add('hidden');
+            searchNameInput.value = '';
+        }
+
+        // Fungsi untuk mencari password
+        function searchPassword() {
+            const searchName = searchNameInput.value.trim();
+            
+            if (!searchName) {
+                showMessage('error', 'Masukkan nama pemilih terlebih dahulu!');
+                return;
+            }
+            
+            // Cari semua nama yang cocok (case insensitive)
+            const results = [];
+            
+            for (const [name, password] of Object.entries(voters)) {
+                if (name.toLowerCase().includes(searchName.toLowerCase())) {
+                    results.push({ name, password });
+                }
+            }
+            
+            // Tampilkan hasil
+            displaySearchResults(results, searchName);
+        }
+
+        // Fungsi untuk menampilkan hasil pencarian
+        function displaySearchResults(results, searchTerm) {
+            passwordResultsContainer.innerHTML = '';
+            
+            if (results.length > 0) {
+                searchCountEl.textContent = `Ditemukan ${results.length} hasil untuk "${searchTerm}"`;
+                
+                results.forEach(item => {
+                    const passwordItem = document.createElement('div');
+                    passwordItem.className = 'password-item';
+                    
+                    passwordItem.innerHTML = `
+                        <div class="password-name">${item.name}</div>
+                        <div class="password-value">${item.password}</div>
+                        <button class="copy-btn" data-password="${item.password}">
+                            <i class="fas fa-copy"></i> Salin
+                        </button>
+                    `;
+                    
+                    passwordResultsContainer.appendChild(passwordItem);
+                });
+                
+                // Tambahkan event listener untuk tombol salin
+                document.querySelectorAll('.copy-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const password = this.getAttribute('data-password');
+                        copyToClipboard(password);
+                        showMessage('success', 'Password berhasil disalin!');
+                    });
+                });
+                
+                searchResult.classList.remove('hidden');
+            } else {
+                searchCountEl.textContent = `Tidak ditemukan hasil untuk "${searchTerm}"`;
+                passwordResultsContainer.innerHTML = `
+                    <div class="no-result">
+                        <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <p>Tidak ditemukan nama yang cocok dengan pencarian Anda</p>
+                    </div>
+                `;
+                searchResult.classList.remove('hidden');
+            }
+        }
+
+        // Fungsi untuk menyalin teks ke clipboard
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
         }
 
         // Setup realtime listeners untuk data yang berubah
@@ -996,5 +1183,4 @@
         }
     </script>
 </body>
-
 </html>
