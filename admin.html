@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Voting OSIS SMP Harapan 3 Medan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a237e, #283593, #303f9f);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin: 20px 0;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .school-logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .school-logo i {
+            font-size: 50px;
+            color: #1a237e;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #4fc3f7;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin: 20px 0;
+            color: #bb86fc;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin: 15px 0;
+            color: #4fc3f7;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="password"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 2px #4fc3f7;
+        }
+
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 10px 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        button:hover {
+            background: #03a9f4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.reset-btn {
+            background: #f44336;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        button.reset-btn:hover {
+            background: #e53935;
+        }
+
+        button.delete-all-btn {
+            background: #ff5722;
+            margin-bottom: 20px;
+        }
+
+        button.delete-all-btn:hover {
+            background: #e64a19;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            color: #ffebee;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            color: #e8f5e9;
+        }
+
+        .info {
+            background: rgba(33, 150, 243, 0.3);
+            color: #e3f2fd;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Navigation Tabs */
+        .admin-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #4fc3f7;
+            border-bottom: 3px solid #4fc3f7;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #bb86fc;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4fc3f7;
+            margin: 10px 0;
+        }
+
+        /* Results */
+        .result-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #2196f3, #4fc3f7);
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+
+        /* User List */
+        .user-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .user-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #4fc3f7;
+        }
+
+        .user-status {
+            font-size: 0.9rem;
+            color: #bb86fc;
+        }
+
+        .voted {
+            color: #4caf50;
+        }
+
+        .not-voted {
+            color: #f44336;
+        }
+
+        /* Search Section */
+        .search-section {
+            margin-bottom: 20px;
+        }
+
+        .search-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .search-result.hidden {
+            display: none;
+        }
+
+        .password-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .password-item:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateX(5px);
+        }
+
+        .password-name {
+            font-weight: 600;
+            color: #4fc3f7;
+            flex: 1;
+        }
+
+        .password-value {
+            font-weight: bold;
+            background: rgba(79, 195, 247, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-left: 10px;
+            font-family: monospace;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .copy-btn {
+            background: #9c27b0;
+            padding: 8px 12px;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        .copy-btn:hover {
+            background: #8e24aa;
+        }
+
+        .no-result {
+            text-align: center;
+            padding: 20px;
+            color: #ffebee;
+            font-style: italic;
+        }
+
+        /* Popup Konfirmasi */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup-content {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: all 0.3s;
+        }
+
+        .popup-overlay.active .popup-content {
+            transform: scale(1);
+        }
+
+        .popup-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .popup-icon {
+            font-size: 3rem;
+            color: #ff5722;
+            margin-bottom: 15px;
+        }
+
+        .popup-message {
+            text-align: center;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .popup-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .popup-btn {
+            min-width: 100px;
+        }
+
+        .popup-btn.cancel {
+            background: #9e9e9e;
+        }
+
+        .popup-btn.cancel:hover {
+            background: #757575;
+        }
+
+        .popup-btn.confirm {
+            background: #f44336;
+        }
+
+        .popup-btn.confirm:hover {
+            background: #e53935;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #4fc3f7;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-link a:hover {
+            color: #bb86fc;
+            text-decoration: underline;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .admin-tabs {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                width: 100%;
+                text-align: center;
+                border-bottom: none;
+                border-left: 3px solid transparent;
+            }
+            
+            .tab-btn.active {
+                border-bottom: none;
+                border-left: 3px solid #4fc3f7;
+            }
+            
+            .user-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .user-actions {
+                margin-top: 10px;
+                width: 100%;
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            .popup-content {
+                padding: 20px;
+            }
+
+            .popup-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="school-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>Panel Admin Voting OSIS</h1>
+            <p>SMP Harapan 3 Medan - Pemilihan Ketua OSIS Tahun Ajaran 2025/2026</p>
+        </header>
+
+        <div id="admin-login-section">
+            <h2><i class="fas fa-lock"></i> Masuk sebagai Admin</h2>
+            <div class="form-group">
+                <label for="admin-password"><i class="fas fa-key"></i> Password Admin:</label>
+                <input type="password" id="admin-password" placeholder="Masukkan password admin">
+            </div>
+            <button id="admin-login-btn"><i class="fas fa-sign-in-alt"></i> Masuk</button>
+        </div>
+
+        <div id="admin-section" class="hidden">
+            <!-- Navigation Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+                <button class="tab-btn" data-tab="user-management"><i class="fas fa-users-cog"></i> Manajemen User</button>
+                <button class="tab-btn" data-tab="password-search"><i class="fas fa-search"></i> Cari Password</button>
+                <button id="live-admin-btn" onclick="window.location.href='live-admin.html'"><i class="fas fa-video"></i> Buka Live Admin</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content active">
+                <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3><i class="fas fa-users"></i> Total Pemilih</h3>
+                        <div class="stat-number" id="total-voters">3</div>
+                        <p>Jumlah siswa yang terdaftar</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3><i class="fas fa-vote-yea"></i> Sudah Voting</h3>
+                        <div class="stat-number" id="voted-count">0</div>
+                        <p>Pemilih yang sudah memberikan suara</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3><i class="fas fa-clock"></i> Belum Voting</h3>
+                        <div class="stat-number" id="not-voted-count">3</div>
+                        <p>Pemilih yang belum memberikan suara</p>
+                    </div>
+                </div>
+                
+                <h3><i class="fas fa-chart-bar"></i> Hasil Voting</h3>
+                <div id="results-container">
+                    <p class="message info">Belum ada hasil voting.</p>
+                </div>
+                
+                <h3><i class="fas fa-cog"></i> Administrasi Sistem</h3>
+                <div class="result-item">
+                    <p>Reset status voting semua pemilih (akan mengatur ulang semua data voting)</p>
+                    <button id="reset-votes" class="reset"><i class="fas fa-trash-alt"></i> Reset Semua Voting</button>
+                    <p class="last-updated" id="last-updated">Terakhir diperbarui: -</p>
+                </div>
+            </div>
+
+            <!-- User Management Tab -->
+            <div id="user-management-tab" class="tab-content">
+                <h2><i class="fas fa-users-cog"></i> Manajemen User</h2>
+                
+                <!-- Tombol Hapus Semua Data -->
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <button id="delete-all-btn" class="delete-all-btn">
+                        <i class="fas fa-trash"></i> Hapus Semua Data Voting
+                    </button>
+                    <p style="font-size: 0.9rem; margin-top: 5px; color: #bb86fc;">
+                        Perhatian: Tindakan ini akan menghapus semua data voting dan tidak dapat dibatalkan!
+                    </p>
+                </div>
+                
+                <div class="search-section">
+                    <div class="form-group">
+                        <label for="search-user"><i class="fas fa-search"></i> Cari User:</label>
+                        <input type="text" id="search-user" placeholder="Masukkan nama user">
+                    </div>
+                </div>
+                
+                <h3><i class="fas fa-list"></i> Daftar Semua User</h3>
+                <div class="user-list" id="user-list">
+                    <!-- Data user akan dimuat di sini -->
+                </div>
+            </div>
+
+            <!-- Password Search Tab -->
+            <div id="password-search-tab" class="tab-content">
+                <h2><i class="fas fa-search"></i> Cari Password Pemilih</h2>
+                
+                <div class="form-group">
+                    <label for="search-name"><i class="fas fa-user"></i> Nama Pemilih:</label>
+                    <input type="text" id="search-name" placeholder="Masukkan nama lengkap atau sebagian nama">
+                </div>
+                <button id="search-btn"><i class="fas fa-search"></i> Cari Password</button>
+                
+                <div id="search-result" class="search-result hidden">
+                    <div class="search-header">
+                        <h3>Hasil Pencarian:</h3>
+                    </div>
+                    <div class="search-count" id="search-count"></div>
+                    <div id="password-results-container"></div>
+                </div>
+            </div>
+            
+            <button id="admin-logout-btn"><i class="fas fa-sign-out-alt"></i> Logout Admin</button>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html"><i class="fas fa-arrow-left"></i> Kembali ke Halaman Voting</a>
+        </div>
+    </div>
+
+    <!-- Popup Konfirmasi -->
+    <div class="popup-overlay" id="confirmation-popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <div class="popup-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3>Konfirmasi Tindakan</h3>
+            </div>
+            <div class="popup-message" id="popup-message">
+                Apakah Anda yakin ingin melakukan tindakan ini?
+            </div>
+            <div class="popup-buttons">
+                <button class="popup-btn cancel" id="popup-cancel">Batal</button>
+                <button class="popup-btn confirm" id="popup-confirm">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Panel Admin Voting OSIS - DIPTA/DILFA</p>
+    </footer>
+
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyAOKl1IV8cGfHhpSPXidFX2x060PYkLafA",
+          authDomain: "hartig-project.firebaseapp.com",
+          databaseURL: "https://hartig-project-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "hartig-project",
+          storageBucket: "hartig-project.firebasestorage.app",
+          messagingSenderId: "584839002596",
+          appId: "1:584839002596:web:5d99bb50508daec8db6ff1"
+        };
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Data pemilih (hanya 3 contoh user)
+const voters = {
+    //7A-1
+    "tes": "1a2b3c",
+    "Abimanyoe Aryo Halim": "xP7aB4qJ",
+    "Affan Jailani Haehap": "mQ9rT3vL",
+    "Afiqah Ayudia Nimeesya Nasution": "gK8wY6zC",
+    "Alfian Rizkie Lubis": "hF4jP7kX",
+    "Alvaro Zhaliandy": "zN2mQ9sD",
+    "Aviqah zahran Ghaisani": "pW3xT6vB",
+    "Dhaffin Azka Putra Darmawan": "rM8kG5yZ",
+    "Fayra Azwa Maraksa": "tJ9nF4pH",
+    "Gibran Ramadhan Wijaya Hasrimi": "qL7bD8xC",
+    "Hafiz Al Rasyid": "vN3yP6kQ",
+    "Hisyam Dzaky Islamy Lubis": "kH9jL4wT",
+    "Ilham Raihan Sukamoto": "mC7gZ5qV",
+    "Latisha Adzra Handoko": "yP8nJ3xR",
+    "M Azka Fanani Daulay": "wT6vK9pB",
+    "MIchelle Jentra Tarigan": "gF4kN7sM",
+    "Muhammad Rafi": "aJ5yH8qX",
+    "Oktha Pratama Kaban": "zQ9wP6mC",
+    "Qinala Windriadi": "rL8tK4jG",
+    "Rafif Akhdan Faika": "xH3pN7qT",
+    "Rieca Fajrina Hafizah Lubis": "mD6gW9yV",
+    "Rifan Arezqi": "kN4jL8pB",
+    "Sabina Hafidzah Abira Lubis": "pC7xM3wT",
+    "Shazia Asha Aufi": "tF9vG6yH",
+    "Siti Haliza Munirah": "yJ8kP5qX",
+    "Syahira Ulfa": "rT3gN9pL",
+    "Syaira Aqifa Naila": "mH6wF8kC",
+    "Syifa Azhara Winata": "aL7yK4qV",
+    "Zaskia Amira": "zP9tM3xG",
+    "Zhafif Amadeo Syahputra": "kJ8nH6wB",
+
+    //7B-1
+    "Abizard Oezil Anindra": "vT3yK9pL",
+    "Agha Ihsan Yustana": "mH6gW8kX",
+    "Aliya Nadira Hasibuan": "aF7nJ4qC",
+    "Alvaro Virendra Tarigan": "zP9tM6xV",
+    "Anindya Gothra Athidira ": "kL8jH5wB",
+    "Dzaka Hanan Lathif": "rT4gN9pQ",
+    "Faidh Arkan Mauranda Hsb": "mJ6wF8kC",
+    "Hadif Rizki Ramadhan": "yL7yK4qV",
+    "Hafidz Rafiandra Nasution": "pT9tM3xG",
+    "Jihan Talita Ulfa": "kJ8nH6wB",
+    "Khaira Syarafana Ramadhani": "xT3yK9pL",
+    "Melody Nasyitha Salsabila Siagian": "mH6gW8kX",
+    "Mhd Rafa Nurwan": "aF7nJ4qC",
+    "Muhammad Alfaiz Mahadika": "zP9tM6xV",
+    "Muhammad Anggi Nafil Siregar": "kL8jH5wB",
+    "Muhammad Fikri Pratama": "rT4gN9pQ",
+    "Naira Salsabila": "mJ6wF8kC",
+    "Natasya Hummaira Ilham": "yL7yK4qV",
+    "Putri Bintang Rania": "pT9tM3xG",
+    "Rasya Alfaruq Haristian": "kJ8nH6wB",
+    "Razwa Azzahra Ginting": "xT3yK9pL",
+    "Rizky Aditya Artami": "mH6gW8kX",
+    "Sofhia Nakita Ufairah": "aF7nJ4qC",
+    "Sutan Kemal Artanugroho": "zP9tM6xV",
+    "T Diaz Syahputra": "kL8jH5wB",
+    "Tengku Farradiba Queen Nurin Fausyah Noor": "rT4gN9pQ",
+    "Tiara Hana Simargolang": "mJ6wF8kC",
+    "Xaquille Aazraqi Al Asag": "yL7yK4qV",
+    "Zareena Zahra Hanania": "pT9tM3xG",
+    "Zivanna Arizta Putri": "kJ8nH6wB",
+
+    //7C-1
+    "Al- Aqsha Dayyan Fathani Setyawan": "gK9nJ7pX",
+    "Alby Husain Hasibuan": "wT4xL8qM",
+    "Allora Chantiqa Hanan": "mF6yK3vC",
+    "Annisa Maharany Tarigan": "rJ9gH5kQ",
+    "Azka Hidayat Bahri Nasution": "xL7nP8qV",
+    "Chairul Ramadhan Siregar": "zH4wF9tB",
+    "Danesh Xavier Sibagariang": "kP8jG6mT",
+    "Fairuz Barkah Hudaibi Panggabean": "aM3nJ7vL",
+    "Fondstella Sulaiman": "tD6yK9pQ",
+    "Hafizh Agna Zulfahmi": "yL8kF4wX",
+    "Hanifa Dzakiyah": "mG7nP5qC",
+    "Kamilah Adlillah Tahel": "rJ9gT3vH",
+    "Kechia Nikita Shaqi": "xL6nK8pV",
+    "Khaniya Shalu Ahmad": "zH4wF9tB",
+    "Makhzuhra Zihni Tanjung": "kP8jG6mT",
+    "Muhammad Arzaq Zhafran Sitorus": "aM3nJ7vL",
+    "Muhammad Dzaky Kamil": "tD6yK9pQ",
+    "Muhammad Ibrahim": "yL8kF4wX",
+    "Muhammad Rizky Husaini": "mG7nP5qC",
+    "Nafisah Zafirah Roseno": "rJ9gT3vH",
+    "Naurah Hayyu": "xL6nK8pV",
+    "Noval Prayoga": "zH4wF9tB",
+    "Prince Hessel Akbar Sirait": "kP8jG6mT",
+    "Raina Ghasani Mahbub": "aM3nJ7vL",
+    "Rezki Wira Pratama": "tD6yK9pQ",
+    "Sultan Ahmad El Fath Nasution": "yL8kF4wX",
+    "Syakhira Nadine Tampubolon": "mG7nP5qC",
+    "Syifa Syaqila": "rJ9gT3vH",
+    "Yuriashila Sastra Maheswari": "xL6nK8pV",
+    "Zibran Garin Nurseha": "zH4wF9tB",
+
+    //7D-1
+    "Airlangga Yudha Zandra": "hG9nJ7pX",
+    "Aisyah Kasyifa": "vT4xL8qM",
+    "Alun Naditya": "nF6yK3vC",
+    "Awfar Achsan Sibuea": "qJ9gH5kQ",
+    "Ayira Kamila": "xL7nP8qV",
+    "Defa Aqeel Pranaja": "zH4wF9tB",
+    "Dyaz Saamiy Muhammad": "kP8jG6mT",
+    "Dzikri Aqilah Fildzah Papilaya Pasaribu": "aM3nJ7vL",
+    "Gybran Jogi": "tD6yK9pQ",
+    "Haikal Irawan Damanik": "yL8kF4wX",
+    "Kayyisa Elma Mazea": "mG7nP5qC",
+    "Khaira Zuhra Alwi": "rJ9gT3vH",
+    "Khansa Alesha Farzana": "xL6nK8pV",
+    "Miqeyza Safeeka": "zH4wF9tB",
+    "Mona Syakira Ritonga": "kP8jG6mT",
+    "Muhammad Azzam Faisal Lubis": "aM3nJ7vL",
+    "Muhammad Ibrahim Kelana": "tD6yK9pQ",
+    "Muhammad Reza Al Fatih Daulay": "yL8kF4wX",
+    "Nadira Shahana": "mG7nP5qC",
+    "Najwan Azhim Tiofani": "rJ9gT3vH",
+    "Ovick Syathir Hajid": "xL6nK8pV",
+    "Putri Sakinah Siregar": "zH4wF9tB",
+    "Rachel Rizkia Putri": "kP8jG6mT",
+    "Rafaat Akbar Ar Rafie Simbolon": "aM3nJ7vL",
+    "Rifqie Khairy Rachman": "tD6yK9pQ",
+    "Shabara Zhafiray Syafhas": "yL8kF4wX",
+    "Sutan Arfa Harahap": "mG7nP5qC",
+    "T Zalikha Rizqy Tafly": "rJ9gT3vH",
+    "Yuriqani Berlian Sayuti": "xL6nK8pV",
+    "Zia Falisha Arthajaya": "zH4wF9tB",
+
+    //8E-1
+    "Al Fath Aqil Khaleev": "dK7pL9mX",
+    "Alifsyah Alaric Pasaribu": "mT3yG6qV",
+    "Alisha Azizi Purboyo": "hN4jW8kC",
+    "Alya Dayana Putri Wilhan": "pL9xH5wB",
+    "Amiira Dafina Ulya": "zT6kM8qC",
+    "Asya Dzahin Pulungan": "gF3jL7pX",
+    "Azura Khansa Shafia": "kN9mH4wV",
+    "Bagas Fathan Atthoriq": "rP6tK8qG",
+    "Balqisya Nailah Frinando": "xJ4wF9tM",
+    "Ben Aiy Muhammad": "vT3kG7pL",
+    "Danish Abrisham Harahap": "mH9nL6wB",
+    "Danish Faeyza Ahmad": "aF4pK8qV",
+    "Danish Riffat Fathullah": "zT7xM3wC",
+    "Dzaki Azkatyaga Tarigan": "kJ6gH9pX",
+    "Dzargi Aufa Darshah": "pN8mL5qG",
+    "Fariz Abrar Alghaisan Daulay": "xT3kF7wB",
+    "Hafidh Arya Ananda": "mJ9nH6pL",
+    "Karina Nur Shidqia Siregar": "rF4tK8qV",
+    "Kaysha Almahira Nasution": "zT7xM3wC",
+    "Khalyla Swietenia Ivana Noor": "kJ6gH9pX",
+    "M Azzan Islami": "pN8mL5qG",
+    "Mahirah Shabir": "xT3kF7wB",
+    "Malik Ahmad Bairawi": "mJ9nH6pL",
+    "Muhammad Albany Athayaa Adnani": "rF4tK8qV",
+    "Muhammad Azzam Mubarak": "zT7xM3wC",
+    "Qalila Faci Nasution": "kJ6gH9pX",
+    "Raditya Wijaya Simatupang": "pN8mL5qG",
+    "Raffi Caesar Barus": "xT3kF7wB",
+    "Salsabila Az-Zahra Batubara": "mJ9nH6pL",
+    "Shibaa Rumaisha Nur": "rF4tK8qV",
+    "Sultan Akhtar Syarif": "zT7xM3wC",
+    "Yaffa Azita Hutabarat": "kJ6gH9pX",
+
+    // 8A-1
+    "Ahmad Fahri Alkhalifi": "x2f7a9pQ",
+    "Akmal Ikhsan Winandar": "L9k1m3tZ",
+    "Amira Tsary Putri Hermawan": "c8V4w2rT",
+    "Arkandhana Azka Fahmi": "p6J9h0eB",
+    "Audrey Keysha Az Zahra": "q1M7x8nL",
+    "Bazliah Salma": "f5H2j9sD",
+    "Danish Azka Arraziq": "z4R8p6cQ",
+    "Diva Aish Syakira": "n3T7b1mV",
+    "Diza Khansa Mazaya": "u9K2v5gH",
+    "Dyandra Audrey Feiza": "r6L3d7pJ",
+    "Faiz Rizqullah Pratama Zulad": "b8F5h4zK",
+    "Ibrah Rustina Utani Lubis": "x3J7k9qM",
+    "M Marsa Amza Shauqi": "t5P1z8nG",
+    "M Rafli Faiz": "k9H3m4rL",
+    "M Dzakwan Athalah Fidoli Siregar": "s4V6b2qN",
+    "Malikha Queen Azmi": "e7D9p0hB",
+    "Malikha Zavania Arasya": "y2N4w8fK",
+    "Mangarap Batang Taris Hasibuan": "v6G5r3zQ",
+    "Muhammad Ar Rasyid Hutasuhut": "m1H8k9xR",
+    "Muhammad Raka Alfarsi Damanik": "o7J4p2tS",
+    "Muhammad Pekokyah Taringan": "i9Q6z3gL",
+    "Muhammad Zafran Ghaffar": "a3R7x8nK",
+    "Nabila Yasmin Hashifah": "d5W1b9hQ",
+    "Nayra Octiva Renadha": "g8F2k4rJ",
+    "Radithya Arkaan Siregar": "w3E7p5mT",
+    "Shira Apriliana": "u9M4k6dB",
+    "Sis Suatmaja": "z2H8t3nL",
+    "Sofia Kamila Harahap": "q5K1p9cJ",
+    "Syafira Karunia Siregar": "f7V4r6mQ",
+    "Syarifah Alya Azmi Pulungan": "l3N9x2dH",
+    "T Hassan Quinn": "b6P7j8gT",
+    "Zahirah Nurul Adha": "o1K5m4vR",
+
+    // 8B-1
+    "Adelia Faranisa Zava": "a8f7c2e9",
+    "Ahmad Fadhil Arafat Addari Nasution": "b9d3k4h1",
+    "Alvino Ghaisan Aprilio Wiryadi": "c4e6j8m2",
+    "Athaa Atsiliah Infanto": "d1f9p7r3",
+    "Azka Igri Raihanah": "e5g3k2n8",
+    "Bella Azzalea": "f2h6m4q1",
+    "Cheszka Najla Nathifa": "g7j9p8s5",
+    "Daafa Alfari Pohan": "h3k2l8n7",
+    "Dipta Mahija Valiant": "i6m4n2r5",
+    "Eza Ahmadi Neazad": "j8n3p7q4",
+    "Farhan Abrar Natawo": "k1p6r5s8",
+    "Felisha Azzahra Rizal": "l9q4s8t2",
+    "Irfan Yusran Berutu": "m2r8t6u5",
+    "Khairuna Rizka Manik": "n5s3u7v1",
+    "M Raka Putra Balka": "o8t4v2w6",
+    "Muhammad Al Ghifari Rozi Hasibuan": "p1u9w3x7",
+    "Muhammad Daanish Gading Al-Hafiz": "q3v5x4y2",
+    "Muhammad Ghafiral Khatna": "r7w2y6z8",
+    "Muhammad Luthfi Hasibuan": "s4x8z3a1",
+    "Nafekha Janetta Khairum": "t6y5a2b7",
+    "Naura Nurfahani Detra": "u2z3b4c8",
+    "Novan Al Habsy": "v8a7c6d3",
+    "Raiz Putra Akbar Ginting": "w1b9d5e4",
+    "Rakan Khadafi Pohan": "x3c4e7f9",
+    "Rizky Alifia Harista": "y5d6f2g8",
+    "Rr Byanca Atthahirah Avgie": "z7e3g1h5",
+    "Shafina Natasha Rudi": "a4f5h8i2",
+    "T Dilfa Maulana": "b6g7i3j9",
+    "Tengku Said Achmad Raffli": "c8h2j4k6",
+    "Yafe Syauqie Bariqa": "d1i9k5l8",
+    "Zeeshan Arkaan": "e3j6l2m7",
+
+    // 8C-1
+    "Aldrich Azka": "f4k7m3n9",
+    "Alisya Dia Zahira": "g6l8n4o1",
+    "Audy Ashalina": "h9m2o5p6",
+    "Azman Rizvan": "i3n7p8q2",
+    "Baim Putra Gunawan": "j5o9q6r3",
+    "Bintang Luthfi Ardana": "k8p1r7s4",
+    "Carissa Putri Suhana": "l2q4s8t9",
+    "Dastan Noushzad Anindra": "m6r3t2u5",
+    "Fadhil Muhammad Althaf": "n9s5u4v7",
+    "Fitiya Rupani Purba": "o1t7v3w8",
+    "Ghania Nahiza Faira Pane": "p4u6w9x1",
+    "Hana Ilmi Zahra": "q7v8x2y3",
+    "Khanaya Adilla Siregar": "r2w3y5z9",
+    "M Habib Haikal": "s6x7z1a4",
+    "Maulana Irham Nasution": "t8y9a2b5",
+    "Muhamad Alkahfi Akbar Triasa": "u3z4b6c7",
+    "Muhammad Zaki Fadhillah": "v5a7c9d2",
+    "Nabihan Azima Khaira": "w8b9d3e6",
+    "Nadhira Feliza": "x2c4e5f7",
+    "Naufal Hilmi Maika": "y7d8f6g1",
+    "Nikesha Khalish Fawnia": "z9e3g7h8",
+    "Qafka Deka": "a3f5h2i9",
+    "Qalisya Daniya Rahman": "b4g6i8j2",
+    "Raisa Rafania Siddik Lubis": "c7h9j3k5",
+    "Raya Bening Batubara": "d1i2k4l8",
+    "Razil Uwais Nuzula Pulungan": "e6j8l9m3",
+    "Rifath Gizlan Arafah": "f9k1m5n7",
+    "Rizqa Muyassarrah Puan Handoyo": "g2l3n8o4",
+    "Sabqi Wistara Syarief Siregar": "h5m6o9p2",
+    "Siti Aisyah Ramadhani Simanjorang": "i8n7p3q6",
+    "Syahira Inayah Rizqi": "j3o4q5r8",
+
+    // 8D-1
+    "Alghifari Anindra Taufik": "k1r5t8u3",
+    "Alisha Azzahra Nasution": "l4s6u9v7",
+    "Argie Anargia Al Fath": "m7t8v2w4",
+    "Arsyaqila Mianda Mahdi": "n2u3w5x6",
+    "Arya Abisenna Nugroho": "o5v6x8y2",
+    "Atha Pagoh Logani Ginting": "p8w9y1z4",
+    "Balqis Adzra": "q1x2z3a7",
+    "Devanta Arfa Aydin": "r3y4a5b8",
+    "Encik Zhafira Deliza Fitri": "s6z7b9c1",
+    "Eshal Akifa Naila": "t9a1c2d3",
+    "Ilfana Amelia Audry": "u2b3d4e9",
+    "Keanu Athallah Akbar Pohan": "v5c6e7f2",
+    "Michi Soesanto Putri": "w8d9f1g3",
+    "Muhammad Faizi Santoso": "x1e2g3h4",
+    "Muhammad Nabil Hibatullah": "y3f4h5i7",
+    "Muhammad Rafki Abgory Ginting": "z6g7i8j1",
+    "Muhammad Umar Khalid": "a9h1j2k4",
+    "Najwa Khalilah Putri Riawan": "b2i3k5l6",
+    "Omar Fattahul Muhammad Hasibuan": "c4j5l7m8",
+    "Rafa Atharizz Ryandra": "d7k8m9n2",
+    "Raisya Salsabila Hsb": "e1l2n3o4",
+    "Raziq Naufal Ritonga": "f3m4o5p9",
+    "Sarah Afifah Syahrun": "g5n6p7q1",
+    "Senandung Zuhrah Fadhilah Hafel": "h7o8q9r2",
+    "Shanaz Azura": "i9p1r2s3",
+    "Shofi Aisyah Aqila Panjaitan": "j2q3s4t5",
+    "Syahirah Az-Zahra Batubara": "k4r5t6u7",
+    "Sylvana Nursakinah Hafid Raditya": "l6s7u8v9",
+    "Tengku Anaqie Anhar Sinar": "m8t9v1w2",
+    "Thabrani Manurung": "n1u2w3x4",
+    "Zhya Ziandra Kurniawan": "o3v4x5y6",
+    "Zidan Ali Haziq": "p5w6y7z8",
+
+    // 8E-1
+    "Adinda Aisyah Raisya Fairuziah": "aX3pWq7L",
+    "Alexa Angelica": "kM8rJs2N",
+    "Anayya Shafa Nur Khalila": "zR5gVh9Q",
+    "Angga Pranata Tarigan": "uT7dXc4P",
+    "Assyifa Aurelia Putri": "oL9kQm3S",
+    "Ayesha Ghina Khairaf": "bH6rTp8Z",
+    "Bayu Langit Samudera": "dJ4yFs6X",
+    "Faeyza Dira Utama Lubis": "mC8nVr5H",
+    "Fajri Iksan Tumangger": "wP3kZs7B",
+    "Fathan Raziqy Adwin": "hS6qMp4V",
+    "Fayaadh Al Asag": "jL2vGh9D",
+    "Firza Adelia Br Sembiring": "gN7xKp1Q",
+    "Kayla Qonita": "tD5yWm8L",
+    "Keano Nayaka Rauf Ginting": "rF4kXp3C",
+    "Khalisa Aruna Arsanggayu": "nG6dVq7T",
+    "M Rasya Athaya ": "xQ8mJh2Z",
+    "Muhammad Audri Khaliq": "lH9sWp4B",
+    "Muhammad Fachrul Rozi": "cJ3gKr7M",
+    "Muhammad Gilang Faliandra": "vN5tHp8L",
+    "Muhammad Ilham Arifin": "fS7xWq2G",
+    "Muhammad Reyhan Akbar": "yP4mVh9D",
+    "Mutia Ghassania": "kR6dXp5J",
+    "Nabillah Marsha Fahira Rehulina Sen": "qT8sGh3L",
+    "Radanica Latifah Br Tarigan": "pC5kVm7H",
+    "Raffa Ansori Hutasuhut": "eL9tQp4X",
+    "Rasikha Khairiyah Nasution": "zN2vGh8K",
+    "Risa Ramadhani": "oJ6mWp3T",
+    "Shadrina Zaahira Lubis": "gF4dXs9B",
+    "Shazfa Khayyiirah A Fazri": "uH7kQm2P",
+    "Shiffa Aura Syafira": "aT3yVp6L",
+    "Siti Raisya Syabilah": "wC9rGm5X",
+    "Zhahran Prayata Nugroho": "hP2kJs8D",
+    "Zianka Ameera Zibacher": "mL5vXp4Q",
+    
+    // 9A-1
+    "Alexandria Aulia Putri Sitorus": "Vw6b9pXc",
+    "Alfathir Radeno Hendrik": "fH3kL1sZ",
+    "Alya Alviona Sinaga": "mX7aK9qB",
+    "Arif Satria Dirga": "Qz2hT8rD",
+    "Arsyla Ghafar Pasaribu": "nJ5vG4pM",
+    "Athira Shofia Putri Syahdina": "bR9xL7fC",
+    "Carissa Ifra Naznin": "kW4qH2mS",
+    "Carrisa Putri Ramadhani Azhar": "zF8pN3kV",
+    "Daanish Sheraz Gusnanda": "yM1hT9rQ",
+    "Duta Mulya Ramadhan": "tP6cV5zN",
+    "Fabian Ramadhan Sitohang": "eK3xL8wG",
+    "Fitra Hadisyah Pohan": "jQ7nR2hM",
+    "Ghozy Aushaf Hibrizi": "uV4bT1kD",
+    "Jayidan Akhtar": "oS5gM8zQ",
+    "Kanaya Tabitha Lase": "cX9kL6fP",
+    "Khalid Furqanul Muhammad Hsb": "dH2wG3nT",
+    "M Arka Islami": "sF8vN1kJ",
+    "Mahnasya Athira Zaira": "qW7pR9xL",
+    "Muhammad Ariq Ar Rafi": "vK4nM2hP",
+    "Muhammad Haisan Afsar": "gT9cJ7wS",
+    "Muhammad Raka Khadafi": "aP3kL8zF",
+    "Nauval Hazel Azzaki": "mH6vG2rJ",
+    "Nazilla Azzahra Lubis": "xW1qN9tC",
+    "Rafie Naufal P Siregar": "zL5pH3vG",
+    "T Rafar Rizky": "jT8kM2rQ",
+    "Ullaya Tsabitah Masyurah S": "kN9cL7hP",
+    "Vidic Wira Ihsani": "bF3wG6pS",
+    "Zivana Puti Anggraini": "uR4nM8vJ",
+
+    // 9B-1
+    "Afifah Talita Sakhi": "tY3mL7pH",
+    "Alfio Raffasya Keiza": "gR9nK4zD",
+    "Alifa Tsabitha": "pX8qL2fW",
+    "Alvero Ghani": "vT6hJ9mS",
+    "Alvino Alifiandra Adjie": "nF2cG8kL",
+    "Annisa Rayani": "dM7pQ3rH",
+    "Assyifa Adzra Syuhada": "sK9nV4tG",
+    "Aufa Nathan Purnomo": "aL3kM6wP",
+    "Bil Bram Argantara Adetya": "yT8hR2jC",
+    "Daffa Khairan Lathif": "wF5cL9vN",
+    "Dinda Almira Lavenia": "kH2nM8pS",
+    "Falih Sulaiman Prasetyo": "qP4xT7rJ",
+    "Fitri Mutiara Ambri": "zL1hG3kM",
+    "Ghazi Fisyabi Al-Fatih": "uR9nJ6vP",
+    "Hana Mardiah": "oS3pK7fG",
+    "Keisya Putry Anandita": "mF8cN2wT",
+    "Khairun Nizam Husein": "dX4hL6pQ",
+    "M Dannesh Syahdian Hamonangan Siregar": "pK9mJ3rH",
+    "M Fitra Hidawi": "fT1cV7nW",
+    "Mhd Alfathir Rizqullah": "gH6xL8pD",
+    "Mikail Al Khalifi Nugroho": "aN3tJ9kM",
+    "Muhammad Arkan Khedira Asrul": "sV5hM2rQ",
+    "Muhammad Azzam Akram": "zF8kN1wP",
+    "Muhammad Habib Aldafi Sulistyo": "nT7mG4pS",
+    "Muhammad Naufal": "kR2xL9hC",
+    "Naila Syafia": "dP6vJ3rT",
+    "Nayla Asylla Putri": "bX1hM8kW",
+    "Nazrah Muliana Siregar": "uH4pG9nD",
+    "Queen Uno Carrisa Siregar": "qK7mL2tS",
+    "Rasya Putra Adinata": "jF5nN6rP",
+    "Syafa Az-Zahra": "oM8kT1wH",
+
+    // 9C-1
+    "Ahmad Asyam Nas Hasibuan": "hL3nM8pT",
+    "Aila Azra Anindita": "zK6cJ9rH",
+    "Arbaa Erlangga": "gF4vL2tM",
+    "Arkand Harith Jauhari": "pR1hN7kS",
+    "Asyfa Rahma Alya Muzakir": "vX8mT3wP",
+    "Dewandy Ahsan": "mK5nG9pC",
+    "Fadhilah Aqila Pardosi": "sH2cL8rJ",
+    "Faiq Danial": "dN7kM3tW",
+    "Fathan Akram Natawo": "oP4hJ9mG",
+    "Fayyadh Afandi Pasaribu": "aL6vG2pH",
+    "Hasby Putra Arlinsyah": "fT8nK1rQ",
+    "Jerico Mas'ud Sambahar Matondang": "kM9pL3tS",
+    "Jivy Oktavianti": "qR2cN7wH",
+    "Marsha Ramadani Kelana": "zH5hG4pD",
+    "Muhamad Adikara Aqil Miftah": "nX3kL8tM",
+    "Muhammad Adzka Danendra Zein": "uF7mJ9rS",
+    "Muhammad Argadika Rubiliano": "dT1nM6wP",
+    "Muhammad Fariz Bramantya": "gK8hG2pH",
+    "Muhammad Naufal Alfarisy": "aR4cJ3kD",
+    "Muhammad Rafan": "sM9pL7vW",
+    "Naura Zhafira Ahmad": "pX2tN8rH",
+    "Naya Desyifa": "jL5kG3pT",
+    "Omar Ghazi Hawali": "oF7nH4wM",
+    "Raziq Athaillah Mauranda Hasibuan": "fT8mK2pD",
+    "Sabita Amanda Br Ginting": "qH1vJ9rG",
+    "Tengku Samara Lady Fausyah Noor": "kM6nG3tP",
+    "Ubaid Alif": "zR4hL8wH",
+    "Zalfa Athifah": "uP9kN2mS",
+
+    // 9D-1
+    "Adisty Fahira Harahap": "hF7nL3pG",
+    "Anugrah Pratama Shaka": "vT2cJ8rH",
+    "Arka Wardana": "gM5kN1wP",
+    "Azmih Rahman Lubis": "oK9mG4tS",
+    "Azrina Khalila Iqtidar": "aR3nL7pH",
+    "Chiara Shakayla Azalea Papilaya Pasaribu": "jH6cM2rG",
+    "Cut Aira Asyifa Muli": "dT1vK8wP",
+    "Davina Athifa Suteza": "kM4nL9pH",
+    "Dzaky Al Afifhan": "pF7hJ3rT",
+    "Fachry Ramadan Sulistiyo": "qR2kM6wH",
+    "Felix Brata": "zL8nG1pS",
+    "Felizha Jasmine": "uP5mH4rT",
+    "Guntur Fawwaz Vranandha": "fK3cJ9wM",
+    "Mhd Kevin Alvaro": "oH7kL2pD",
+    "Mhd Harith Riffat Herdzakhwan": "aT9nM8vH",
+    "Muhammad Abiyan Al Zabran": "sR4hG6pT",
+    "Muhammad Dzaki Maulana": "gM1kN9wH",
+    "Muhammad Ghazali": "jF8nL3rG",
+    "Muhammad Hilmy Nasution": "pT6cK4tP",
+    "Muhammad Syadad Al Ghazy Lubis": "dR9mJ2pS",
+    "Nabila Az-Zahra": "kH3nL8wH",
+    "Nafiza Asyifa": "oP7kG1rT",
+    "Najmi Nurul Khalishah": "uM4nJ9pH",
+    "Naufal Rafa Sinulingga": "zK6cL2wT",
+    "Raja Fathir Muhammad Lumban Gaol": "fR1kM8pH",
+    "Ridho Al Fachri": "qH9nL7rG",
+    "Sasya Fairuz Devina Hasibuan": "aT3mG2wP",
+    "Sauqi Aleya Ginting": "jP8nK4pS",
+    "Zhafirah Anindya Remi": "dF5cL1wH",
+
+    // 9E-1
+    "Alvaro Riezky Zafran": "kM9nJ8pT",
+    "Annisa Zahiiqa Lubis": "oT2kL6wH",
+    "Asyifah Aurelia Zava": "gR7mG1rP",
+    "Atha Samy Nuvuz": "uF3hN9pH",
+    "Chelsea Jasmine Mei Ji Tan": "dK5nM2wT",
+    "Dimas Al Faatih Sulistomo": "zP8kG4rH",
+    "Fahmi Al Zakki": "qH1cL7wM",
+    "Fajar Akbar Tumangger": "fT6mJ3pS",
+    "Fayyadh Naufal Pasyah": "jM4nL8wH",
+    "Ghaitsa Wijdaan Batrisya": "aK9kN2rP",
+    "Hafizh Hamonangan Nasution": "pR7hG1pH",
+    "Harsha Hadya Hrp": "uF3mL9wH",
+    "Jihan Talitha Br Ginting": "dT8kG4rH",
+    "Khalisyah Rezeki Salsyabilah": "oM1nJ7pT",
+    "Mafaaza Mahirah": "gH6mL2wP",
+    "Mhd Aqil Aviciena Manik": "zF9nG8rH",
+    "Michael Hardian Habeahan": "qR3kJ1wT",
+    "Muhammad Faiz Ghaisan": "fM7nL9pH",
+    "Muhammad Rizki Alfarizi": "jT4cG2wP",
+    "Muhammad Teguh Fahreizy": "aK8nJ3rH",
+    "Nailah Rifda Faika": "pF5mG7pH",
+    "Qaireen Shadrina": "uT9kL1wM",
+    "R Yasha Muhammad Alfaizri": "dM6nJ2rH",
+    "Savina Paramesywari Anwar": "oH3cL8wT",
+    "Tsasya Muchlishah": "gR7mG1pP",
+    "Zahran Dhiya Pasaribu": "zF9kN4rH",
+    "Zhilan Zhalila R Nasution": "qT2mL6wH",
+    "Zia Anindya Quinza": "fM8nG3pS"    
+};
+
+        // Elemen DOM
+        const adminLoginSection = document.getElementById('admin-login-section');
+        const adminSection = document.getElementById('admin-section');
+        const adminPasswordInput = document.getElementById('admin-password');
+        const adminLoginBtn = document.getElementById('admin-login-btn');
+        const adminLogoutBtn = document.getElementById('admin-logout-btn');
+        const resetVotesBtn = document.getElementById('reset-votes');
+        const deleteAllBtn = document.getElementById('delete-all-btn');
+        const searchUserInput = document.getElementById('search-user');
+        const userListEl = document.getElementById('user-list');
+        const searchNameInput = document.getElementById('search-name');
+        const searchBtn = document.getElementById('search-btn');
+        const searchResult = document.getElementById('search-result');
+        const searchCountEl = document.getElementById('search-count');
+        const passwordResultsContainer = document.getElementById('password-results-container');
+        const totalVotersEl = document.getElementById('total-voters');
+        const votedCountEl = document.getElementById('voted-count');
+        const notVotedCountEl = document.getElementById('not-voted-count');
+        const resultsContainer = document.getElementById('results-container');
+        const lastUpdatedEl = document.getElementById('last-updated');
+        
+        // Tab elements
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Popup elements
+        const confirmationPopup = document.getElementById('confirmation-popup');
+        const popupMessage = document.getElementById('popup-message');
+        const popupCancel = document.getElementById('popup-cancel');
+        const popupConfirm = document.getElementById('popup-confirm');
+        
+        // Password admin
+        const adminPassword = "admin123";
+        
+        // Variabel untuk menyimpan konteks konfirmasi
+        let confirmAction = null;
+        let confirmParams = null;
+
+        // Event Listeners
+        adminLoginBtn.addEventListener('click', adminLogin);
+        adminLogoutBtn.addEventListener('click', adminLogout);
+        resetVotesBtn.addEventListener('click', () => {
+            showConfirmation(
+                "Reset Semua Voting",
+                "Apakah Anda yakin ingin mereset SEMUA data voting? Tindakan ini akan mengatur ulang semua status voting.",
+                resetAllVotes
+            );
+        });
+        deleteAllBtn.addEventListener('click', () => {
+            showConfirmation(
+                "Hapus Semua Data Voting",
+                "Apakah Anda yakin ingin menghapus SEMUA data voting? Tindakan ini akan menghapus semua status voting dan tidak dapat dibatalkan!",
+                deleteAllVotes
+            );
+        });
+        searchUserInput.addEventListener('input', filterUsers);
+        searchBtn.addEventListener('click', searchPassword);
+        
+        // Tab navigation
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                
+                // Remove active class from all tabs and contents
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                btn.classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Load data if needed
+                if (tabId === 'user-management') {
+                    loadUsersData();
+                }
+            });
+        });
+        
+        // Event listeners untuk popup
+        popupCancel.addEventListener('click', hideConfirmation);
+        popupConfirm.addEventListener('click', executeConfirmedAction);
+
+        // Fungsi untuk menampilkan popup konfirmasi
+        function showConfirmation(title, message, action, params = null) {
+            document.querySelector('.popup-header h3').textContent = title;
+            popupMessage.textContent = message;
+            confirmAction = action;
+            confirmParams = params;
+            confirmationPopup.classList.add('active');
+        }
+
+        // Fungsi untuk menyembunyikan popup konfirmasi
+        function hideConfirmation() {
+            confirmationPopup.classList.remove('active');
+            confirmAction = null;
+            confirmParams = null;
+        }
+
+        // Fungsi untuk menjalankan aksi yang dikonfirmasi
+        function executeConfirmedAction() {
+            if (confirmAction) {
+                if (confirmParams) {
+                    confirmAction(confirmParams);
+                } else {
+                    confirmAction();
+                }
+            }
+            hideConfirmation();
+        }
+
+        // Fungsi untuk login admin
+        function adminLogin() {
+            const password = adminPasswordInput.value.trim();
+            
+            if (password === adminPassword) {
+                adminLoginSection.classList.add('hidden');
+                adminSection.classList.remove('hidden');
+                loadDashboardData();
+                setupRealtimeListeners();
+            } else {
+                showMessage('error', 'Password admin salah!');
+            }
+        }
+
+        // Fungsi untuk logout admin
+        function adminLogout() {
+            adminSection.classList.add('hidden');
+            adminLoginSection.classList.remove('hidden');
+            adminPasswordInput.value = '';
+        }
+
+        // Setup realtime listeners untuk data yang berubah
+        function setupRealtimeListeners() {
+            // Listen untuk perubahan data voters
+            database.ref('voters').on('value', function(snapshot) {
+                const votersData = snapshot.val() || {};
+                updateDashboardStats(votersData);
+                updateUserList(votersData);
+            });
+            
+            // Listen untuk perubahan data candidates
+            database.ref('candidates').on('value', function(snapshot) {
+                const candidatesData = snapshot.val() || {};
+                updateResults(candidatesData);
+            });
+        }
+
+        // Fungsi untuk memuat data dashboard
+        function loadDashboardData() {
+            // Ambil data pemilih dan kandidat
+            Promise.all([
+                database.ref('voters').once('value'),
+                database.ref('candidates').once('value')
+            ]).then(([votersSnapshot, candidatesSnapshot]) => {
+                const votersData = votersSnapshot.val() || {};
+                const candidatesData = candidatesSnapshot.val() || {};
+                
+                updateDashboardStats(votersData);
+                updateResults(candidatesData);
+                updateLastUpdated();
+            }).catch(error => {
+                showMessage('error', 'Gagal memuat data: ' + error.message);
+            });
+        }
+
+        // Update statistik dashboard
+        function updateDashboardStats(votersData) {
+            const totalVoters = Object.keys(voters).length;
+            const votedCount = Object.values(votersData).filter(voter => voter && voter.hasVoted).length;
+            const notVotedCount = totalVoters - votedCount;
+            const votePercentage = totalVoters > 0 ? (votedCount / totalVoters * 100).toFixed(1) : 0;
+            
+            totalVotersEl.textContent = totalVoters;
+            votedCountEl.textContent = `${votedCount} (${votePercentage}%)`;
+            notVotedCountEl.textContent = notVotedCount;
+        }
+
+        // Update hasil voting
+        function updateResults(candidatesData) {
+            resultsContainer.innerHTML = '';
+            
+            if (!candidatesData) {
+                resultsContainer.innerHTML = '<p class="message info">Belum ada hasil voting.</p>';
+                return;
+            }
+            
+            // Hitung total votes
+            let totalVotes = 0;
+            Object.values(candidatesData).forEach(candidate => {
+                totalVotes += candidate.votes || 0;
+            });
+            
+            if (totalVotes === 0) {
+                resultsContainer.innerHTML = '<p class="message info">Belum ada hasil voting.</p>';
+                return;
+            }
+            
+            // Urutkan kandidat berdasarkan jumlah vote
+            const sortedCandidates = Object.entries(candidatesData).sort((a, b) => {
+                return (b[1].votes || 0) - (a[1].votes || 0);
+            });
+            
+            sortedCandidates.forEach(([id, candidate], index) => {
+                const percentage = totalVotes > 0 ? ((candidate.votes || 0) / totalVotes * 100).toFixed(1) : 0;
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                
+                if (index === 0 && candidate.votes > 0) {
+                    resultItem.innerHTML = `<span class="winner-badge"><i class="fas fa-trophy"></i> PEMENANG</span>`;
+                }
+                
+                resultItem.innerHTML += `
+                    <h3>${candidate.name || 'Kandidat ' + id}</h3>
+                    <p>${candidate.votes || 0} suara (${percentage}%)</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                
+                resultsContainer.appendChild(resultItem);
+            });
+        }
+
+        // Fungsi untuk memuat data user
+        function loadUsersData() {
+            userListEl.innerHTML = '<p class="message info">Memuat data user...</p>';
+            
+            // Ambil data voters dari Firebase
+            database.ref('voters').once('value')
+                .then(snapshot => {
+                    const votersData = snapshot.val() || {};
+                    displayUsers(votersData);
+                })
+                .catch(error => {
+                    showMessage('error', 'Gagal memuat data user: ' + error.message);
+                });
+        }
+
+        // Update daftar user
+        function updateUserList(votersData) {
+            if (document.getElementById('user-management-tab').classList.contains('active')) {
+                displayUsers(votersData);
+            }
+        }
+
+        // Fungsi untuk menampilkan daftar user
+        function displayUsers(votersData) {
+            userListEl.innerHTML = '';
+            
+            if (Object.keys(voters).length === 0) {
+                userListEl.innerHTML = '<p class="message info">Tidak ada data user.</p>';
+                return;
+            }
+            
+            Object.entries(voters).forEach(([username, password]) => {
+                const hasVoted = votersData[username] && votersData[username].hasVoted;
+                const votedFor = votersData[username] && votersData[username].votedFor;
+                const timestamp = votersData[username] && votersData[username].timestamp;
+                
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.dataset.username = username;
+                
+                userItem.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-name">${username}</div>
+                        <div class="user-status ${hasVoted ? 'voted' : 'not-voted'}">
+                            <i class="fas ${hasVoted ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                            ${hasVoted ? 'Sudah voting' : 'Belum voting'}
+                            ${hasVoted && votedFor ? ` (Kandidat ${votedFor})` : ''}
+                        </div>
+                        ${timestamp ? `<div class="user-timestamp">Waktu: ${new Date(timestamp).toLocaleString('id-ID')}</div>` : ''}
+                    </div>
+                    <div class="user-actions">
+                        ${hasVoted ? `
+                            <button class="reset-btn" data-user="${username}">
+                                <i class="fas fa-undo"></i> Reset Status
+                            </button>
+                        ` : '<span class="user-status">Tidak perlu reset</span>'}
+                    </div>
+                `;
+                
+                userListEl.appendChild(userItem);
+            });
+            
+            // Tambahkan event listener untuk tombol reset
+            document.querySelectorAll('.reset-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const username = this.getAttribute('data-user');
+                    showConfirmation(
+                        "Reset Status Voting",
+                        `Apakah Anda yakin ingin mereset status voting untuk ${username}?`,
+                        resetUserVote,
+                        username
+                    );
+                });
+            });
+        }
+
+        // Fungsi untuk filter user berdasarkan pencarian
+        function filterUsers() {
+            const searchTerm = searchUserInput.value.trim().toLowerCase();
+            const userItems = document.querySelectorAll('.user-item');
+            
+            userItems.forEach(item => {
+                const username = item.dataset.username.toLowerCase();
+                if (username.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Fungsi untuk mencari password
+        function searchPassword() {
+            const searchName = searchNameInput.value.trim();
+            
+            if (!searchName) {
+                showMessage('error', 'Masukkan nama pemilih terlebih dahulu!');
+                return;
+            }
+            
+            // Cari semua nama yang cocok (case insensitive)
+            const results = [];
+            
+            for (const [name, password] of Object.entries(voters)) {
+                if (name.toLowerCase().includes(searchName.toLowerCase())) {
+                    results.push({ name, password });
+                }
+            }
+            
+            // Tampilkan hasil
+            displaySearchResults(results, searchName);
+        }
+
+        // Fungsi untuk menampilkan hasil pencarian
+        function displaySearchResults(results, searchTerm) {
+            passwordResultsContainer.innerHTML = '';
+            
+            if (results.length > 0) {
+                searchCountEl.textContent = `Ditemukan ${results.length} hasil untuk "${searchTerm}"`;
+                
+                results.forEach(item => {
+                    const passwordItem = document.createElement('div');
+                    passwordItem.className = 'password-item';
+                    
+                    passwordItem.innerHTML = `
+                        <div class="password-name">${item.name}</div>
+                        <div class="password-value">${item.password}</div>
+                        <button class="copy-btn" data-password="${item.password}">
+                            <i class="fas fa-copy"></i> Salin
+                        </button>
+                    `;
+                    
+                    passwordResultsContainer.appendChild(passwordItem);
+                });
+                
+                // Tambahkan event listener untuk tombol salin
+                document.querySelectorAll('.copy-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const password = this.getAttribute('data-password');
+                        copyToClipboard(password);
+                        showMessage('success', 'Password berhasil disalin!');
+                    });
+                });
+                
+                searchResult.classList.remove('hidden');
+            } else {
+                searchCountEl.textContent = `Tidak ditemukan hasil untuk "${searchTerm}"`;
+                passwordResultsContainer.innerHTML = `
+                    <div class="no-result">
+                        <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <p>Tidak ditemukan nama yang cocok dengan pencarian Anda</p>
+                    </div>
+                `;
+                searchResult.classList.remove('hidden');
+            }
+        }
+
+        // Fungsi untuk menyalin teks ke clipboard
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+
+        // Fungsi untuk reset status voting user
+        function resetUserVote(username) {
+            // Dapatkan data kandidat yang dipilih user sebelumnya
+            database.ref('voters/' + username).once('value')
+                .then(snapshot => {
+                    const userData = snapshot.val();
+                    const previousVote = userData && userData.votedFor;
+                    
+                    // Reset status voting user
+                    const updates = {};
+                    updates['voters/' + username + '/hasVoted'] = false;
+                    updates['voters/' + username + '/votedFor'] = null;
+                    updates['voters/' + username + '/timestamp'] = null;
+                    
+                    // Kurangi vote dari kandidat sebelumnya jika ada
+                    if (previousVote) {
+                        database.ref('candidates/' + previousVote + '/votes').transaction(currentVotes => {
+                            return (currentVotes || 1) - 1;
+                        });
+                        
+                        // Hapus user dari daftar voters kandidat
+                        updates['candidates/' + previousVote + '/voters/' + username] = null;
+                    }
+                    
+                    // Terapkan semua update
+                    database.ref().update(updates)
+                        .then(() => {
+                            showMessage('success', `Status voting untuk ${username} berhasil direset!`);
+                        })
+                        .catch(error => {
+                            showMessage('error', 'Gagal mereset status voting: ' + error.message);
+                        });
+                })
+                .catch(error => {
+                    showMessage('error', 'Gagal mengambil data user: ' + error.message);
+                });
+        }
+
+        // Fungsi untuk reset semua voting
+        function resetAllVotes() {
+            // Reset semua status voting
+            const updates = {};
+            Object.keys(voters).forEach(voter => {
+                updates['voters/' + voter + '/hasVoted'] = false;
+                updates['voters/' + voter + '/votedFor'] = null;
+                updates['voters/' + voter + '/timestamp'] = null;
+            });
+            
+            // Reset jumlah vote kandidat
+            for (let i = 1; i <= 5; i++) {
+                updates['candidates/' + i + '/votes'] = 0;
+                updates['candidates/' + i + '/voters'] = {};
+            }
+            
+            database.ref().update(updates)
+                .then(() => {
+                    showMessage('success', 'Semua status voting berhasil direset!');
+                    updateLastUpdated();
+                })
+                .catch(error => {
+                    showMessage('error', 'Gagal mereset status voting: ' + error.message);
+                });
+        }
+
+        // Fungsi untuk menghapus semua data voting
+        function deleteAllVotes() {
+            // Hapus semua data voters
+            database.ref('voters').remove()
+                .then(() => {
+                    // Reset jumlah vote kandidat
+                    const updates = {};
+                    for (let i = 1; i <= 5; i++) {
+                        updates['candidates/' + i + '/votes'] = 0;
+                        updates['candidates/' + i + '/voters'] = {};
+                    }
+                    
+                    return database.ref().update(updates);
+                })
+                .then(() => {
+                    showMessage('success', 'Semua data voting berhasil dihapus!');
+                    updateLastUpdated();
+                })
+                .catch(error => {
+                    showMessage('error', 'Gagal menghapus data voting: ' + error.message);
+                });
+        }
+
+        // Update waktu terakhir diperbarui
+        function updateLastUpdated() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID');
+            const dateString = now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            lastUpdatedEl.textContent = `Terakhir diperbarui: ${dateString} pukul ${timeString}`;
+        }
+
+        // Fungsi untuk menampilkan pesan
+        function showMessage(type, text) {
+            // Hapus pesan sebelumnya
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // Buat pesan baru
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${text}`;
+            
+            // Tambahkan pesan ke bagian admin
+            adminSection.appendChild(message);
+            
+            // Hapus pesan setelah 5 detik
+            setTimeout(() => {
+                message.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

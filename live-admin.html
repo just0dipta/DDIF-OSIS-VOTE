@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting OSIS - SMP Harapan 3 Medan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a237e, #283593, #303f9f);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin: 50px auto;
+        }
+
+        .school-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .school-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .school-logo i {
+            font-size: 40px;
+            color: #1a237e;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: #4fc3f7;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #bb86fc;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.5);
+        }
+
+        .admin-options {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .admin-options.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .toggle-admin {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-admin input {
+            display: none;
+        }
+
+        .toggle-slider {
+            width: 50px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            margin-right: 10px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .toggle-slider:before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+
+        .toggle-admin input:checked + .toggle-slider {
+            background: #2196f3;
+        }
+
+        .toggle-admin input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .login-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-btn:hover {
+            background: #03a9f4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .login-btn i {
+            margin-right: 8px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #f44336;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.success {
+            background: #4caf50;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: none;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .content-wrapper {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+        }
+
+        /* Chart Section - Lebih besar */
+        .chart-section {
+            flex: 3;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title i {
+            margin-right: 10px;
+            color: #4fc3f7;
+        }
+
+        .chart-container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+        }
+
+        .vertical-bar-chart {
+            flex: 2;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 400px;
+            padding: 20px 0;
+        }
+
+        .chart-bar-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 14%;
+            height: 100%;
+        }
+
+        .bar-container-vertical {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .bar-fill-vertical {
+            width: 100%;
+            border-radius: 8px 8px 0 0;
+            transition: height 1s ease-out;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 5px;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            position: relative;
+            animation: barGrow 1.5s ease-out;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes barGrow {
+            from { height: 0% !important; }
+        }
+
+        .bar-fill-vertical::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 20%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .candidate-name-vertical {
+            text-align: center;
+            font-weight: 600;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vote-count-vertical {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 5px;
+            font-size: 1.2rem;
+            color: #4fc3f7;
+        }
+
+        .leaderboard-section {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 15px;
+        }
+
+        .leaderboard-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .leaderboard-title i {
+            margin-right: 10px;
+            color: #ffeb3b;
+        }
+
+        .leaderboard-list {
+            list-style: none;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .leaderboard-rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .rank-1 .leaderboard-rank {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .rank-2 .leaderboard-rank {
+            background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+            box-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
+        }
+
+        .rank-3 .leaderboard-rank {
+            background: linear-gradient(135deg, #CD7F32, #8C6B46);
+            box-shadow: 0 0 10px rgba(205, 127, 50, 0.5);
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-votes {
+            font-size: 0.8rem;
+            color: #bb86fc;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4fc3f7;
+            margin: 5px 0;
+        }
+
+        .last-updated {
+            text-align: right;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 20px;
+        }
+
+        /* Chat Section - Lebih kecil */
+        .chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            max-height: 500px;
+        }
+
+        .chat-header {
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 350px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .message.admin {
+            background: rgba(33, 150, 243, 0.2);
+            border-left: 3px solid #2196f3;
+        }
+
+        .message.user {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 3px solid #4caf50;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 0.8rem;
+            color: #bb86fc;
+        }
+
+        .message-content {
+            line-height: 1.3;
+            font-size: 0.85rem;
+        }
+
+        .chat-input {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .chat-input.active {
+            display: block;
+        }
+
+        .input-group {
+            display: flex;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #03a9f4;
+        }
+
+        .admin-badge {
+            background: #2196f3;
+            color: white;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            margin-left: 5px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .nav-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 0 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+        }
+
+        .user-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: none;
+            z-index: 100;
+        }
+
+        .user-info .username {
+            font-weight: bold;
+            color: #4fc3f7;
+        }
+
+        .user-info .role {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .logout-btn {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .school-logo {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .school-logo i {
+                font-size: 30px;
+            }
+            
+            .chart-container {
+                flex-direction: column;
+            }
+            
+            .vertical-bar-chart {
+                height: 300px;
+            }
+            
+            .user-info {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Halaman Login -->
+    <div class="login-container" id="login-page">
+        <div class="school-header">
+            <div class="school-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>Login Voting OSIS</h1>
+            <p class="subtitle">SMP Harapan 3 Medan</p>
+        </div>
+
+        <form class="login-form" id="login-form">
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user"></i> Nama Pengguna</label>
+                <input type="text" id="username" placeholder="Masukkan nama Anda" required>
+            </div>
+
+            <div class="toggle-admin">
+                <input type="checkbox" id="admin-toggle">
+                <label for="admin-toggle" class="toggle-slider"></label>
+                <span>Login sebagai Admin</span>
+            </div>
+
+            <div class="admin-options" id="admin-options">
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Password Admin</label>
+                    <input type="password" id="password" placeholder="Masukkan password admin">
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Masuk ke Voting
+            </button>
+        </form>
+
+        <div class="footer">
+            <p>© 2025 Voting OSIS - SMP Harapan 3 Medan</p>
+        </div>
+    </div>
+
+    <!-- Halaman Voting (Awalnya Disembunyikan) -->
+    <div class="container" id="voting-page">
+        <div class="user-info" id="user-info">
+            <span>Login sebagai: <span class="username" id="display-username"></span> 
+            <span class="role" id="display-role"></span></span>
+            <button class="logout-btn" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+
+        <header>
+            <div class="school-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>Live Chart Voting OSIS 2025 </h1>
+            <p class="page-description">Pantau hasil voting secara real-time dengan chart interaktif</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3><i class="fas fa-users"></i> Total Pemilih</h3>
+                <div class="stat-number" id="total-voters">0</div>
+            </div>
+            <div class="stat-card">
+                <h3><i class="fas fa-vote-yea"></i> Sudah Voting</h3>
+                <div class="stat-number" id="voted-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h3><i class="fas fa-chart-line"></i> Total Suara</h3>
+                <div class="stat-number" id="total-votes">0</div>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- Chart Section yang lebih besar -->
+            <section class="chart-section">
+                <div class="chart-title">
+                    <i class="fas fa-chart-bar"></i>
+                    <h2>Hasil Voting Live</h2>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="vertical-bar-chart" id="vertical-bar-chart">
+                        <!-- Chart bars vertikal akan di-generate di sini -->
+                    </div>
+                    
+                    <div class="leaderboard-section">
+                        <div class="leaderboard-title">
+                            <i class="fas fa-trophy"></i>
+                            <h2>Leaderboard</h2>
+                        </div>
+                        <ul class="leaderboard-list" id="leaderboard-list">
+                            <!-- Leaderboard akan di-generate di sini -->
+                        </ul>
+                    </div>
+                </div>
+                
+                <p class="last-updated" id="last-updated">Terakhir diperbarui: -</p>
+            </section>
+
+            <!-- Chat Section yang lebih kecil -->
+            <section class="chat-section">
+                <div class="chat-header">
+                    <h2><i class="fas fa-comments"></i> Live Chat</h2>
+                </div>
+                
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message admin">
+                        <div class="message-header">
+                            <span>Admin <span class="admin-badge">ADMIN</span></span>
+                            <span>10:00</span>
+                        </div>
+                        <div class="message-content">
+                            Selamat datang di live chat pemilihan OSIS! Pantau pergerakan hasil voting secara real-time.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input" id="chat-input-container">
+                    <div class="input-group">
+                        <input type="text" id="chat-input" placeholder="Ketik pesan Anda...">
+                        <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="navigation">
+            <a href="admin.html" class="nav-button"><i class="fas fa-arrow-left"></i> Kembali ke Halaman admin</a>
+        </div>
+
+        <footer>
+            <p>© 2025 Live Voting OSIS - DIPTA/DILFA</p>
+        </footer>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyAOKl1IV8cGfHhpSPXidFX2x060PYkLafA",
+          authDomain: "hartig-project.firebaseapp.com",
+          databaseURL: "https://hartig-project-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "hartig-project",
+          storageBucket: "hartig-project.firebasestorage.app",
+          messagingSenderId: "584839002596",
+          appId: "1:584839002596:web:5d99bb50508daec8db6ff1"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Data kandidat
+        const candidates = {
+            1: "Sofia Kamila Harahap",
+            2: "Adelia Faranisa Zava", 
+            3: "Alisya Dia Zahira",
+            4: "Nadhira Feliza",
+            5: "Atha Pagoh Llogani"
+        };
+
+        const voters = {
+    "tes": "1a2b3c",
+    "Abimanyoe Aryo Halim": "xP7aB4qJ",
+    "Affan Jailani Haehap": "mQ9rT3vL",
+    };
+
+        // Warna untuk setiap kandidat
+        const candidateColors = [
+            'linear-gradient(to top, #FF5252, #FF1744)',
+            'linear-gradient(to top, #448AFF, #2979FF)',
+            'linear-gradient(to top, #FFEB3B, #FFC400)',
+            'linear-gradient(to top, #69F0AE, #00E676)',
+            'linear-gradient(to top, #E040FB, #D500F9)'
+        ];
+
+        // Variabel global
+        let isAdmin = false;
+        let currentUsername = "";
+
+        // Elemen DOM
+        const loginPage = document.getElementById('login-page');
+        const votingPage = document.getElementById('voting-page');
+        const notification = document.getElementById('notification');
+        const userInfo = document.getElementById('user-info');
+        const displayUsername = document.getElementById('display-username');
+        const displayRole = document.getElementById('display-role');
+        const logoutBtn = document.getElementById('logout-btn');
+        
+        // Elemen voting page
+        const totalVotersEl = document.getElementById('total-voters');
+        const votedCountEl = document.getElementById('voted-count');
+        const notVotedCountEl = document.getElementById('not-voted-count');
+        const totalVotesEl = document.getElementById('total-votes');
+        const lastUpdatedEl = document.getElementById('last-updated');
+        const chatMessagesEl = document.getElementById('chat-messages');
+        const chatInputEl = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const verticalBarChartEl = document.getElementById('vertical-bar-chart');
+        const leaderboardListEl = document.getElementById('leaderboard-list');
+        const chatInputContainer = document.getElementById('chat-input-container');
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminToggle = document.getElementById('admin-toggle');
+            const adminOptions = document.getElementById('admin-options');
+            const loginForm = document.getElementById('login-form');
+            
+            // Toggle admin options
+            adminToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    adminOptions.classList.add('active');
+                } else {
+                    adminOptions.classList.remove('active');
+                }
+            });
+            
+            // Handle form submission
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const isAdminLogin = adminToggle.checked;
+                const password = document.getElementById('password').value;
+                
+                // Validasi input
+                if (!username) {
+                    showNotification('Nama pengguna tidak boleh kosong', false);
+                    return;
+                }
+                
+                if (isAdminLogin) {
+                    // Validasi password admin (contoh password: admin123)
+                    if (password !== 'admin123') {
+                        showNotification('Password admin salah', false);
+                        return;
+                    }
+                    
+                    // Simpan info admin ke localStorage
+                    localStorage.setItem('userRole', 'admin');
+                    localStorage.setItem('username', username);
+                    showNotification('Login admin berhasil!', true);
+                    
+                    isAdmin = true;
+                } else {
+                    // Simpan info pengguna biasa ke localStorage
+                    localStorage.setItem('userRole', 'user');
+                    localStorage.setItem('username', username);
+                    showNotification('Login berhasil!', true);
+                    
+                    isAdmin = false;
+                }
+                
+                currentUsername = username;
+                
+                // Redirect ke halaman voting setelah 1 detik
+                setTimeout(() => {
+                    loginPage.style.display = 'none';
+                    votingPage.style.display = 'block';
+                    userInfo.style.display = 'flex';
+                    
+                    // Tampilkan info user
+                    displayUsername.textContent = username;
+                    displayRole.textContent = isAdmin ? '(Admin)' : '(Pengguna)';
+                    
+                    // Setup voting page
+                    setupVotingPage();
+                }, 1000);
+            });
+            
+            // Logout functionality
+            logoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('username');
+                
+                votingPage.style.display = 'none';
+                userInfo.style.display = 'none';
+                loginPage.style.display = 'block';
+                
+                showNotification('Anda telah logout', true);
+            });
+            
+            // Cek jika pengguna sudah login
+            const savedUsername = localStorage.getItem('username');
+            if (savedUsername) {
+                loginPage.style.display = 'none';
+                votingPage.style.display = 'block';
+                userInfo.style.display = 'flex';
+                
+                currentUsername = savedUsername;
+                isAdmin = localStorage.getItem('userRole') === 'admin';
+                
+                // Tampilkan info user
+                displayUsername.textContent = savedUsername;
+                displayRole.textContent = isAdmin ? '(Admin)' : '(Pengguna)';
+                
+                // Setup voting page
+                setupVotingPage();
+            }
+        });
+
+        // Setup voting page
+        function setupVotingPage() {
+            // Tampilkan input chat hanya untuk admin
+            if (isAdmin) {
+                chatInputContainer.classList.add('active');
+            } else {
+                chatInputContainer.classList.remove('active');
+            }
+            
+            // Event Listeners untuk chat
+            sendBtn.addEventListener('click', sendMessage);
+            chatInputEl.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Setup realtime listeners
+            setupRealtimeListeners();
+        }
+
+        // Fungsi untuk membuat chart balok vertikal
+        function createVerticalBarChart(candidatesData) {
+            if (!candidatesData) return;
+            
+            // Hitung total suara untuk menentukan persentase
+            let totalVotes = 0;
+            const votesData = [];
+            
+            for (let i = 1; i <= 5; i++) {
+                const votes = candidatesData[i] ? candidatesData[i].votes || 0 : 0;
+                votesData.push({
+                    id: i,
+                    name: candidates[i],
+                    votes: votes
+                });
+                totalVotes += votes;
+            }
+            
+            // Kosongkan container chart
+            verticalBarChartEl.innerHTML = '';
+            
+            // Buat bar untuk setiap kandidat
+            votesData.forEach((candidate, index) => {
+                const percentage = totalVotes > 0 ? (candidate.votes / totalVotes) * 100 : 0;
+                
+                const chartBar = document.createElement('div');
+                chartBar.className = 'chart-bar-vertical';
+                
+                chartBar.innerHTML = `
+                    <div class="bar-container-vertical">
+                        <div class="bar-fill-vertical" style="height: ${percentage}%; background: ${candidateColors[index]};">
+                            ${percentage > 5 ? `${Math.round(percentage)}%` : ''}
+                        </div>
+                    </div>
+                    <div class="vote-count-vertical">${candidate.votes}</div>
+                    <div class="candidate-name-vertical">${candidate.name}</div>
+                `;
+                
+                verticalBarChartEl.appendChild(chartBar);
+            });
+            
+            // Update total votes
+            totalVotesEl.textContent = totalVotes;
+            
+            // Update leaderboard
+            updateLeaderboard(votesData);
+        }
+
+        // Fungsi untuk memperbarui leaderboard
+        function updateLeaderboard(candidatesData) {
+            // Urutkan kandidat berdasarkan jumlah suara (descending)
+            const sortedCandidates = [...candidatesData].sort((a, b) => b.votes - a.votes);
+            
+            // Kosongkan leaderboard
+            leaderboardListEl.innerHTML = '';
+            
+            // Tambahkan 5 kandidat teratas ke leaderboard
+            sortedCandidates.slice(0, 5).forEach((candidate, index) => {
+                const li = document.createElement('li');
+                li.className = `leaderboard-item rank-${index + 1}`;
+                
+                li.innerHTML = `
+                    <div class="leaderboard-rank">${index + 1}</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${candidate.name}</div>
+                        <div class="leaderboard-votes">${candidate.votes} suara</div>
+                    </div>
+                `;
+                
+                leaderboardListEl.appendChild(li);
+            });
+        }
+
+        // Fungsi untuk mengirim pesan chat
+        function sendMessage() {
+            const message = chatInputEl.value.trim();
+            if (!message) return;
+            
+            // Hanya admin yang bisa mengirim pesan
+            if (!isAdmin) {
+                showNotification('Hanya admin yang dapat mengirim pesan', false);
+                return;
+            }
+
+            // Simpan pesan ke Firebase
+            const timestamp = new Date().getTime();
+            database.ref('chat/' + timestamp).set({
+                message: message,
+                timestamp: timestamp,
+                user: currentUsername,
+                role: 'admin'
+            });
+
+            chatInputEl.value = '';
+        }
+
+        // Fungsi untuk menampilkan pesan chat
+        function displayMessage(messageData, id) {
+            const messageDiv = document.createElement('div');
+            const isAdminMsg = messageData.role === 'admin';
+            
+            messageDiv.className = `message ${isAdminMsg ? 'admin' : 'user'}`;
+            
+            const date = new Date(messageData.timestamp);
+            const timeString = date.toLocaleTimeString('id-ID', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span>${messageData.user} ${isAdminMsg ? '<span class="admin-badge">ADMIN</span>' : ''}</span>
+                    <span>${timeString}</span>
+                </div>
+                <div class="message-content">
+                    ${messageData.message}
+                </div>
+            `;
+            
+            chatMessagesEl.appendChild(messageDiv);
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+        }
+
+        // Setup realtime listeners
+        function setupRealtimeListeners() {
+            // Listen untuk perubahan data voters
+            database.ref('voters').on('value', function(snapshot) {
+                const votersData = snapshot.val() || {};
+                updateVoterStats(votersData);
+            });
+            
+            // Listen untuk perubahan data candidates
+            database.ref('candidates').on('value', function(snapshot) {
+                const candidatesData = snapshot.val() || {};
+                createVerticalBarChart(candidatesData);
+                updateLastUpdated();
+            });
+            
+            // Listen untuk pesan chat baru
+            database.ref('chat').orderByChild('timestamp').limitToLast(10).on('child_added', function(snapshot) {
+                const messageData = snapshot.val();
+                displayMessage(messageData, snapshot.key);
+            });
+        }
+
+        // Update statistik voter
+        function updateVoterStats(votersData) {
+            // Hitung total voters dari database
+            const totalVoters = Object.keys(votersData).length;
+            
+            // Hitung jumlah yang sudah voting
+            let votedCount = 0;
+            for (const key in votersData) {
+                if (votersData[key] && votersData[key].hasVoted) {
+                    votedCount++;
+                }
+            }
+            
+            const notVotedCount = totalVoters - votedCount;
+            
+            totalVotersEl.textContent = totalVoters;
+            votedCountEl.textContent = votedCount;
+            notVotedCountEl.textContent = notVotedCount;
+        }
+
+        // Update waktu terakhir diperbarui
+        function updateLastUpdated() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID');
+            const dateString = now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            lastUpdatedEl.textContent = `Terakhir diperbarui: ${dateString} pukul ${timeString}`;
+        }
+
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(message, isSuccess) {
+            notification.textContent = message;
+            notification.className = 'notification';
+            
+            if (isSuccess) {
+                notification.classList.add('success');
+            }
+            
+            notification.style.display = 'block';
+            
+            // Sembunyikan notifikasi setelah 3 detik
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
