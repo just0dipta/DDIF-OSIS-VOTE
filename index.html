@@ -3,823 +3,1328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voting OSIS - SMP Harapan 3 Delitua</title>
+    <title>Kritik & Saran - SMP Harapan Tiga Delitua</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --secondary: #64b5f6;
+            --accent: #2196f3;
+            --light: #f5f9ff;
+            --dark: #333;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --gray: #78909c;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
         }
-
+        
         body {
-            background: linear-gradient(135deg, #1a237e, #283593, #303f9f);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            margin: 20px 0;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .school-logo {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 15px;
-            background: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .school-logo i {
-            font-size: 50px;
-            color: #1a237e;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #4fc3f7;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        h2 {
-            font-size: 1.8rem;
-            margin: 20px 0;
-            color: #bb86fc;
-        }
-
-        p {
-            margin-bottom: 20px;
+            background-color: #f0f7ff;
+            color: var(--dark);
             line-height: 1.6;
+            padding-bottom: 60px;
         }
-
-        .form-group {
-            margin-bottom: 20px;
+        
+        .container {
+            max-width: 100%;
+            width: 100%;
+            padding: 0 15px;
+            margin: 0 auto;
         }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 20px;
+            overflow: hidden;
+        }
+        
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .school-name {
+            font-size: 18px;
             font-weight: 600;
         }
-
-        input[type="text"],
-        input[type="password"] {
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background-color: white;
+            color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: #e3f2fd;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-icon {
+            margin-right: 5px;
+        }
+        
+        main {
+            padding: 20px 0;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--accent);
+            border-radius: 3px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-select, .form-input {
             width: 100%;
             padding: 12px 15px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             font-size: 16px;
-            transition: all 0.3s;
+            transition: border-color 0.3s ease;
         }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
+        
+        .form-select:focus, .form-input:focus {
             outline: none;
-            background: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 0 0 2px #4fc3f7;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
         }
-
-        button {
-            background: #2196f3;
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            cursor: pointer;
+            width: 100%;
+            padding: 12px;
             font-size: 16px;
             font-weight: 600;
-            transition: all 0.3s;
-            margin: 10px 5px;
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 115, 232, 0.3);
+        }
+        
+        .feedback-list {
+            margin-top: 30px;
+        }
+        
+        .feedback-item {
+            margin-bottom: 25px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .feedback-category {
+            background-color: var(--secondary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .feedback-type {
+            background-color: #e3f2fd;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .feedback-content {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .feedback-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .feedback-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
             display: flex;
             align-items: center;
-            justify-content: center;
-        }
-
-        button i {
-            margin-right: 8px;
-        }
-
-        button:hover {
-            background: #03a9f4;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .candidates {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin: 30px 0;
-        }
-
-        .candidate-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s;
+            background-color: #f5f5f5;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 20px;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .action-btn.active {
+            background-color: #e3f2fd;
+            color: var(--primary);
+        }
+        
+        .action-icon {
+            margin-right: 5px;
+        }
+        
+        .feedback-status {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background-color: #fff8e1;
+            color: var(--warning);
+        }
+        
+        .status-process {
+            background-color: #e3f2fd;
+            color: var(--primary);
+        }
+        
+        .status-completed {
+            background-color: #e8f5e9;
+            color: var(--success);
+        }
+        
+        .status-rejected {
+            background-color: #ffebee;
+            color: var(--error);
+        }
+        
+        .admin-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-left: 5px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             position: relative;
-            overflow: hidden;
+            animation: slideUp 0.4s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .team-member {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f5f9ff;
+        }
+        
+        .member-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 10px;
+            border: 3px solid var(--secondary);
+        }
+        
+        .member-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .member-role {
+            color: var(--primary);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .member-class {
+            color: var(--gray);
+            font-size: 13px;
+        }
+        
+        footer {
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .footer-content {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
-        .candidate-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
         }
-
-        .candidate-card.selected {
-            background: rgba(33, 150, 243, 0.3);
-            box-shadow: 0 0 0 2px #2196f3;
+        
+        .footer-link {
+            color: #bbdefb;
+            text-decoration: none;
+            transition: color 0.3s ease;
         }
-
-        .candidate-card h3 {
-            margin-bottom: 10px;
-            color: #4fc3f7;
-            font-size: 1.4rem;
+        
+        .footer-link:hover {
+            color: white;
         }
-
-        .candidate-image {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 15px;
-            border: 4px solid rgba(79, 195, 247, 0.5);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .candidate-details {
-            margin-top: 15px;
-            width: 100%;
-        }
-
-        .vision-mission-btn {
-            background: #9c27b0;
-            width: 100%;
-            margin-top: 10px;
-            padding: 10px;
+        
+        .copyright {
             font-size: 14px;
+            color: #bbdefb;
         }
-
-        .vision-mission-btn:hover {
-            background: #8e24aa;
+        
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 99;
+            transition: all 0.3s ease;
         }
-
-        .vision-mission-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 0 15px;
-            width: 100%;
-            margin-top: 10px;
+        
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
         }
-
-        .vision-mission-content.expanded {
-            max-height: 500px;
-            padding: 15px;
+        
+        /* Loading spinner */
+        .loader {
+            display: none;
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid var(--primary);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
         }
-
-        .vision-mission-content h4 {
-            color: #bb86fc;
-            margin-bottom: 10px;
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
-        .vision-mission-content ul {
-            text-align: left;
-            padding-left: 20px;
-            margin-bottom: 10px;
-        }
-
-        .vote-button {
-            background: #4caf50;
-            width: 100%;
-            margin-top: 20px;
-            padding: 15px;
-            font-size: 18px;
-        }
-
-        .vote-button:hover {
-            background: #43a047;
-        }
-
-        .message {
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .error {
-            background: rgba(244, 67, 54, 0.3);
-            color: #ffebee;
-        }
-
-        .success {
-            background: rgba(76, 175, 80, 0.3);
-            color: #e8f5e9;
-        }
-
-        .info {
-            background: rgba(33, 150, 243, 0.3);
-            color: #e3f2fd;
-        }
-
-        .hidden {
+        
+        /* Admin Panel */
+        .admin-panel {
             display: none;
         }
-
-        .results {
-            margin-top: 30px;
-            text-align: center;
+        
+        .admin-header {
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 15px 0;
         }
-
-        .thank-you-message {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 30px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .thank-you-icon {
-            font-size: 4rem;
-            color: #4fc3f7;
+        
+        .admin-actions {
+            display: flex;
+            gap: 10px;
             margin-bottom: 20px;
-            animation: bounce 2s infinite;
+            flex-wrap: wrap;
         }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-            40% {transform: translateY(-20px);}
-            60% {transform: translateY(-10px);}
+        
+        .admin-tab {
+            background-color: #e3f2fd;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
+        
+        .admin-tab.active {
+            background-color: var(--primary);
+            color: white;
         }
-
-        .admin-link {
-            text-align: center;
+        
+        .admin-content {
+            display: none;
+        }
+        
+        .admin-content.active {
+            display: block;
+        }
+        
+        .user-list, .feedback-admin-list {
             margin-top: 20px;
         }
-
-        .admin-link a {
-            color: #4fc3f7;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
+        
+        .user-item, .feedback-admin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
         }
-
-        .admin-link a:hover {
-            color: #bb86fc;
-            text-decoration: underline;
+        
+        .user-info, .feedback-admin-info {
+            flex: 1;
         }
-
+        
+        .user-name, .feedback-admin-content {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .user-id, .feedback-admin-meta {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .user-actions, .feedback-admin-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .status-select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        
         /* Responsive styles */
-        @media (max-width: 768px) {
+        @media (min-width: 768px) {
             .container {
-                padding: 20px;
-                border-radius: 15px;
+                max-width: 720px;
             }
             
-            h1 {
-                font-size: 2rem;
-            }
-            
-            h2 {
-                font-size: 1.5rem;
-            }
-            
-            .candidates {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .candidate-card {
-                padding: 20px;
-            }
-            
-            .candidate-image {
-                width: 150px;
-                height: 150px;
-            }
-            
-            button {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-            
-            .thank-you-icon {
-                font-size: 3rem;
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            
+        
+        @media (min-width: 992px) {
             .container {
-                padding: 15px;
+                max-width: 960px;
             }
-            
-            .school-logo {
-                width: 80px;
-                height: 80px;
-            }
-            
-            .school-logo i {
-                font-size: 40px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            h2 {
-                font-size: 1.3rem;
-            }
-            
-            .candidate-image {
-                width: 130px;
-                height: 130px;
-            }
-            
-            .candidate-card h3 {
-                font-size: 1.2rem;
-            }
-            
-            .thank-you-icon {
-                font-size: 2.5rem;
+        }
+        
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1140px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="school-logo">
-                <i class="fas fa-graduation-cap"></i>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-container">
+                    <div class="logo">
+                        <img src="https://pbs.twimg.com/profile_images/1237059329536098309/zxRTZRAV_400x400.jpg" alt="Logo SMP Harapan Tiga Delitua">
+                    </div>
+                    <div class="school-name">SMP Harapan Tiga Delitua</div>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-outline" id="aboutBtn">
+                        <i class="btn-icon">👥</i> Tentang Kami
+                    </button>
+                    <button class="btn btn-primary" id="adminBtn">
+                        <i class="btn-icon">🔒</i> Admin
+                    </button>
+                </div>
             </div>
-            <h1>Voting OSIS 2025</h1>
-            <p>SMP Harapan 3 Delitua - Pemilihan Ketua OSIS Tahun Ajaran 2025/2026</p>
-        </header>
-
-        <div id="login-section">
-            <h2><i class="fas fa-sign-in-alt"></i> Masuk untuk Voting</h2>
-            <div class="form-group">
-                <label for="student-id"><i class="fas fa-id-card"></i> ID Siswa:</label>
-                <input type="text" id="student-id" placeholder="Masukkan ID siswa (contoh: 7A01)">
-            </div>
-            <div class="form-group">
-                <label for="otp"><i class="fas fa-key"></i> Token OTP:</label>
-                <input type="password" id="otp" placeholder="Masukkan token OTP">
-            </div>
-            <button id="login-btn"><i class="fas fa-sign-in-alt"></i> Masuk</button>
-            <p class="message info"><i class="fas fa-info-circle"></i> Masukkan ID siswa dan token OTP yang telah diberikan.</p>
         </div>
+    </header>
 
-        <div id="voting-section" class="hidden">
-            <h2><i class="fas fa-vote-yea"></i> Pilih Calon Ketua OSIS</h2>
-            <p>Silakan pilih satu calon ketua OSIS yang menurut Anda paling tepat:</p>
+    <!-- Main Content -->
+    <main class="container">
+        <h2 class="section-title">Kritik & Saran</h2>
+        
+        <!-- Feedback List -->
+        <div class="feedback-list" id="feedbackList">
+            <div class="loader" id="loader"></div>
+            <!-- Feedback items will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Floating Action Button -->
+    <div class="fab" id="fabButton">
+        <i class="fas fa-plus"></i>
+    </div>
+
+    <!-- Feedback Form Modal -->
+    <div class="modal" id="feedbackModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeFeedbackModal">&times;</span>
+            <h2 class="section-title">Kirim Kritik/Saran</h2>
             
-            <div class="candidates">
-                <!-- No 1: Atha Pagoh -->
-                <div class="candidate-card" data-id="1">
-                    <img src="images/pagoh.jpg" alt="Atha Pagoh Llogani" class="candidate-image">
-                    <h3>Atha Pagoh Llogani</h3>
-                    <p>Kelas: VIII D</p>
-                    <div class="candidate-details">
-                        <button class="vision-mission-btn"><i class="fas fa-book-open"></i> Lihat Visi & Misi</button>
-                        <div class="vision-mission-content">
-                            <h4>Visi:</h4>
-                            <p>Menjadikan sekolah sebagai lingkungan yang disiplin dan sehat melalui pengembangan program olahraga dan kegiatan kedisiplinan yang efektif, sehingga siswa dapat tumbuh menjadi individu yang berprestasi dan berkarakter.</p>
-                            <h4>Misi:</h4>
-                            <ul>
-                                <li>Meningkatkan Kedisiplinan Siswa melalui Kegiatan Ekstrakurikuler</li>
-                                <li>Meningkatkan Partisipasi Siswa dalam Kegiatan Olahraga</li>
-                                <li>Meningkatkan Kesadaran Siswa tentang Pentingnya Kedisiplinan</li>
-                            </ul>
-                        </div>
-                    </div>
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label class="form-label">Jenis</label>
+                    <select class="form-select" id="feedbackType" required>
+                        <option value="">Pilih Jenis</option>
+                        <option value="kritik">Kritik</option>
+                        <option value="saran">Saran</option>
+                    </select>
                 </div>
                 
-                <!-- No 2: Sofia Kamila -->
-                <div class="candidate-card" data-id="2">
-                    <img src="images/sofia.jpg" alt="Sofia Kamila Harahap" class="candidate-image">
-                    <h3>Sofia Kamila Harahap</h3>
-                    <p>Kelas: VIII A</p>
-                    <div class="candidate-details">
-                        <button class="vision-mission-btn"><i class="fas fa-book-open"></i> Lihat Visi & Misi</button>
-                        <div class="vision-mission-content">
-                            <h4>Visi:</h4>
-                            <p>menuju osis yang inspiratif,kolaboratif dan berdampak positif serta memiliki kepribadian muslim.</p>
-                            <h4>Misi:</h4>
-                            <ul>
-                                <li>menjalankan program kerja yang berasas keterbutuhan siswa dan sesuai visi misi yaspendhar.</li>
-                                <li>melaksanakan program dan aktivitas kerja untuk meningkatkan kreativitas siswa.</li>
-                                <li>melakukan kolaborasi dengan seluruh perangkat sekolah untuk menciptakan sekolah hijau.</li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Kategori</label>
+                    <select class="form-select" id="feedbackCategory" required>
+                        <option value="">Pilih Kategori</option>
+                        <option value="osis">OSIS</option>
+                        <option value="sekolah">Sekolah</option>
+                        <option value="fasilitas">Fasilitas</option>
+                        <option value="guru">Guru</option>
+                    </select>
                 </div>
                 
-                <!-- No 3: Adelia -->
-                <div class="candidate-card" data-id="3">
-                    <img src="images/adel.jpg" alt="Adelia Faranisa Zava" class="candidate-image">
-                    <h3>Adelia Faranisa Zava</h3>
-                    <p>Kelas: VIII B</p>
-                    <div class="candidate-details">
-                        <button class="vision-mission-btn"><i class="fas fa-book-open"></i> Lihat Visi & Misi</button>
-                        <div class="vision-mission-content">
-                            <h4>Visi:</h4>
-                            <p>Visi saya adalah dapat menjadikan organisasi ini sebagai ajang pembentukan karakter siswa-siswi SMP Harapan 3 dengan terwujudnya kepribadian unggul, wawasan yang luas, serta penggalian bakat dan minat.</p>
-                            <h4>Misi:</h4>
-                            <ul>
-                                <li>Mewadahi dan Menyalurkan bakat serta minat siswa dalam bidang akademik maupun non-akademik melalui kegiatan ekstrakurikuler dan perlombaan internal maupun eksternal.</li>
-                                <li>⁠Menjalin komunikasi yang baik antara OSIS, siswa, guru dan pihak sekolah agar semua kegiatan berjalan efektif dan sesuai dengan kebutuhan siswa.</li>
-                                <li>Mendorong siswa untuk menjadi agen perubahan yang tidak hanya bertindak sesuai arahan, tetapi juga memiliki keberanian untuk berinisiatif, berinovasi, dan memberikan dampak positif bagi lingkungan sekitar melalui program kerja OSIS.</li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Kritik/Saran</label>
+                    <textarea class="form-input form-textarea" id="feedbackContent" placeholder="Tuliskan kritik atau saran Anda di sini..." required></textarea>
                 </div>
                 
-                <!-- No 4: Nadhira -->
-                <div class="candidate-card" data-id="4">
-                    <img src="images/nadhira.jpg" alt="Nadhira Feliza" class="candidate-image">
-                    <h3>Nadhira Feliza</h3>
-                    <p>Kelas: VIII C</p>
-                    <div class="candidate-details">
-                        <button class="vision-mission-btn"><i class="fas fa-book-open"></i> Lihat Visi & Misi</button>
-                        <div class="vision-mission-content">
-                            <h4>Visi:</h4>
-                            <p>mewujudkan osis sebagai generasi muda untuk menjadi wadah ke kreativitasan dalam bidang yang positif dan kegiatan yang dapat mereka kuasai dan juga  bertanggung jawab,meningkatkan  , kedisiplinan,sopan santun,sebagai siswa siswi harapan 3 </p>
-                            <h4>Misi:</h4>
-                            <ul>
-                                <li>meningkatkan sopan santun dan adab yang baik kepada guru maupun siswa di lingkungan sekolah </li>
-                                <li>meningkatkan partisipasi/ketertarikan siswa siswi creative untuk mengembangkan bakat dalam kegiatan akademik dan non akademik yang ada di ekstrakulikuler harapan 3</li>
-                                <li>melanjutkan program kerja osis sebelumnya yang terbaik dan meningkatkan kembali dengan program osis yang sekarang.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- No 5: Alisyah -->
-                <div class="candidate-card" data-id="5">
-                    <img src="images/alisyah.jpg" alt="Alisya Dia Zahira" class="candidate-image">
-                    <h3>Alisya Dia Zahira</h3>
-                    <p>Kelas: VIII C</p>
-                    <div class="candidate-details">
-                        <button class="vision-mission-btn"><i class="fas fa-book-open"></i> Lihat Visi & Misi</button>
-                        <div class="vision-mission-content">
-                            <h4>Visi:</h4>
-                            <p>Menjadi organisasi yang berperan aktif dalam membangun karakter siswa/i yang berbudi pekerti&berprestasi serta meningkatkan mutu pendidikan,meningkatkan kemampuan bersosialisasi dan disiplin</p>
-                            <h4>Misi:</h4>
-                            <ul>
-                                <li>mendorong partisipasi aktif siswa/i dalam kegiatan sekolah.</li>
-                                <li>melakukan kerja sama dedan sekolah dalam program meningkatkan keimanan siswa/i</li>
-                                <li>mengembangkan nilai nilai kepemimpinan,tanggung jawab,dan disiplin</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <button id="vote-btn" class="vote-button"><i class="fas fa-paper-plane"></i> Kirim Vote Saya</button>
-            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </div>
-
-        <div id="results-section" class="hidden">
-            <div class="thank-you-message">
-                <div class="thank-you-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h2>Terima Kasih Telah Melakukan Voting!</h2>
-                <p>Suara Anda telah tercatat dan sangat berarti untuk kemajuan OSIS SMP Harapan 3 Medan.</p>
-                <p>Hasil pemilihan akan diumumkan setelah proses voting selesai.</p>
-            </div>
-            <button id="back-to-login"><i class="fas fa-arrow-left"></i> Kembali ke Login</button>
-        </div>
-
-        <div class="admin-link">
-            <a href="admin.html"><i class="fas fa-cog"></i> Panel Admin</a>
+                <button type="submit" class="btn submit-btn">
+                    <i class="fas fa-paper-plane btn-icon"></i> Kirim Kritik/Saran
+                </button>
+            </form>
         </div>
     </div>
 
+    <!-- Footer -->
     <footer>
-        <p>© 2025 Sistem Voting OSIS - dilt dev</p>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Kebijakan Privasi</a>
+                    <a href="#" class="footer-link">Syarat & Ketentuan</a>
+                    <a href="#" class="footer-link">Kontak</a>
+                </div>
+                <div class="copyright">
+                    &copy; 2025 osis iptek smp harapan 3 . All rights reserved.
+                </div>
+            </div>
+        </div>
     </footer>
 
-    <script>
-        // Konfigurasi Firebase
-        const firebaseConfig = {
-          apiKey: "AIzaSyAOKl1IV8cGfHhpSPXidFX2x060PYkLafA",
-          authDomain: "hartig-project.firebaseapp.com",
-          databaseURL: "https://hartig-project-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "hartig-project",
-          storageBucket: "hartig-project.firebasestorage.app",
-          messagingSenderId: "584839002596",
-          appId: "1:584839002596:web:5d99bb50508daec8db6ff1"
-        };
+    <!-- About Modal -->
+    <div class="modal" id="aboutModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeAboutModal">&times;</span>
+            <h2 class="section-title">Tim Pengembang</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <img src="images/dipta.jpg" alt="Team Member" class="member-photo">
+                    <div class="member-name">Dipta mahija valiant</div>
+                    <div class="member-role">coder,Developer</div>
+                    <div class="member-role">osis kepala bidang iptek</div>
+                    <div class="member-class">Kelas VIII-B</div>
+                </div>
+                <div class="team-member">
+                    <img src="images/dilfa.jpg" alt="Team Member" class="member-photo">
+                    <div class="member-name">T Dilfa Maulana</div>
+                    <div class="member-role">Backend Developer</div>
+                    <div class="member-role">osis sekertaris bidang iptek</div>
+                    <div class="member-class">Kelas VIII-B</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // Inisialisasi Firebase
+    <!-- Admin Login Modal -->
+    <div class="modal" id="adminLoginModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeAdminModal">&times;</span>
+            <h2 class="section-title">Login Admin</h2>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="adminUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="adminPassword" required>
+                </div>
+                <button type="submit" class="btn submit-btn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel (Hidden by default) -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo-container">
+                        <div class="logo">
+                            <img src="https://pbs.twimg.com/profile_images/1237059329536098309/zxRTZRAV_400x400.jpg" alt="Logo SMP Harapan Tiga Delitua">
+                        </div>
+                        <div class="school-name">Panel Admin SMP Harapan Tiga Delitua</div>
+                    </div>
+                    <button class="btn btn-outline" id="logoutBtn">
+                        <i class="btn-icon">↩</i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <main class="container">
+            <h2 class="section-title">Dashboard Admin</h2>
+            
+            <div class="admin-actions">
+                <button class="admin-tab active" data-tab="feedback">Kelola Feedback</button>
+                <button class="admin-tab" data-tab="users">Kelola Pengguna</button>
+            </div>
+            
+            <div class="admin-content active" id="feedbackTab">
+                <div class="card">
+                    <h3>Daftar Kritik & Saran</h3>
+                    <div class="feedback-admin-list" id="feedbackAdminList">
+                        <!-- Admin feedback items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="admin-content" id="usersTab">
+                <div class="card">
+                    <h3>Daftar Pengguna</h3>
+                    <div class="user-list" id="userList">
+                        <!-- User items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Firebase configuration (replace with your actual config)
+const firebaseConfig = {
+  apiKey: "AIzaSyAOKl1IV8cGfHhpSPXidFX2x060PYkLafA",
+  authDomain: "hartig-project.firebaseapp.com",
+  databaseURL: "https://hartig-project-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "hartig-project",
+  storageBucket: "hartig-project.firebasestorage.app",
+  messagingSenderId: "584839002596",
+  appId: "1:584839002596:web:999bd3ccc489a31cdb6ff1"
+};
+
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
-        // Contoh data siswa (3 contoh saja)
-        const students = {
-            "7A01": { name: "tes", class: "7A" },
-            "7A02": { name: "tes1", class: "7A" },
-            "7A03": { name: "tes1", class: "7A" }
-        };
-
-        // Elemen DOM
-        const loginSection = document.getElementById('login-section');
-        const votingSection = document.getElementById('voting-section');
-        const resultsSection = document.getElementById('results-section');
         
-        const studentIdInput = document.getElementById('student-id');
-        const otpInput = document.getElementById('otp');
-        const loginBtn = document.getElementById('login-btn');
-        const voteBtn = document.getElementById('vote-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const backToLoginBtn = document.getElementById('back-to-login');
+        // DOM Elements
+        const feedbackModal = document.getElementById('feedbackModal');
+        const feedbackForm = document.getElementById('feedbackForm');
+        const feedbackList = document.getElementById('feedbackList');
+        const fabButton = document.getElementById('fabButton');
+        const aboutBtn = document.getElementById('aboutBtn');
+        const adminBtn = document.getElementById('adminBtn');
+        const aboutModal = document.getElementById('aboutModal');
+        const adminLoginModal = document.getElementById('adminLoginModal');
+        const closeAboutModal = document.getElementById('closeAboutModal');
+        const closeAdminModal = document.getElementById('closeAdminModal');
+        const closeFeedbackModal = document.getElementById('closeFeedbackModal');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const adminPanel = document.getElementById('adminPanel');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminTabs = document.querySelectorAll('.admin-tab');
+        const adminContents = document.querySelectorAll('.admin-content');
+        const feedbackAdminList = document.getElementById('feedbackAdminList');
+        const userList = document.getElementById('userList');
+        const loader = document.getElementById('loader');
         
-        const candidateCards = document.querySelectorAll('.candidate-card');
-        const visionMissionBtns = document.querySelectorAll('.vision-mission-btn');
+        // User ID (will be generated or retrieved from localStorage)
+        let userId = localStorage.getItem('userId');
+        let isAdmin = false;
         
-        // Variabel state
-        let currentUser = null;
-        let selectedCandidate = null;
-
-        // Event Listeners
-        loginBtn.addEventListener('click', login);
-        voteBtn.addEventListener('click', submitVote);
-        logoutBtn.addEventListener('click', logout);
-        backToLoginBtn.addEventListener('click', () => {
-            resultsSection.classList.add('hidden');
-            loginSection.classList.remove('hidden');
-        });
+        // Show loading indicator
+        function showLoader() {
+            loader.style.display = 'block';
+        }
         
-        candidateCards.forEach(card => {
-            card.addEventListener('click', (e) => {
-                // Jangan pilih kandidat jika yang diklik adalah tombol visi misi
-                if (e.target.classList.contains('vision-mission-btn') || 
-                    e.target.closest('.vision-mission-btn')) {
-                    return;
-                }
-                
-                candidateCards.forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-                selectedCandidate = card.getAttribute('data-id');
-            });
-        });
+        // Hide loading indicator
+        function hideLoader() {
+            loader.style.display = 'none';
+        }
         
-        // Tombol visi misi
-        visionMissionBtns.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const content = this.nextElementSibling;
-                content.classList.toggle('expanded');
-                
-                if (content.classList.contains('expanded')) {
-                    this.innerHTML = '<i class="fas fa-times"></i> Tutup Visi & Misi';
-                } else {
-                    this.innerHTML = '<i class="fas fa-book-open"></i> Lihat Visi & Misi';
-                }
-            });
-        });
-
-        // Fungsi untuk login
-        function login() {
-            const studentId = studentIdInput.value.trim();
-            const otp = otpInput.value.trim();
+        // Generate user ID if not exists and save to Firebase
+        if (!userId) {
+            userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('userId', userId);
             
-            if (!studentId || !otp) {
-                showMessage('error', 'ID Siswa dan Token OTP harus diisi!');
-                return;
-            }
-            
-            // Cek apakah ID siswa ada dalam daftar
-            if (students.hasOwnProperty(studentId)) {
-                // Cek token OTP di Firebase
-                database.ref('tokens/' + otp).once('value')
-                    .then(snapshot => {
-                        const tokenData = snapshot.val();
-                        
-                        if (tokenData && tokenData.active) {
-                            // Cek apakah token sudah digunakan
-                            if (tokenData.usedBy) {
-                                showMessage('error', 'Token OTP sudah digunakan!');
-                                return;
-                            }
-                            
-                            // Cek status voting di Firebase
-                            database.ref('voters/' + studentId).once('value')
-                                .then(snapshot => {
-                                    const voterData = snapshot.val();
-                                    
-                                    if (voterData && voterData.hasVoted) {
-                                        // Jika sudah voting, tampilkan terima kasih
-                                        showMessage('info', 'Anda sudah melakukan voting. Terima kasih!');
-                                        showThankYou();
-                                    } else {
-                                        // Jika belum voting, tampilkan halaman voting
-                                        currentUser = {
-                                            id: studentId,
-                                            name: students[studentId].name,
-                                            class: students[studentId].class,
-                                            token: otp
-                                        };
-                                        loginSection.classList.add('hidden');
-                                        votingSection.classList.remove('hidden');
-                                    }
-                                })
-                                .catch(error => {
-                                    showMessage('error', 'Terjadi kesalahan: ' + error.message);
-                                });
-                        } else {
-                            showMessage('error', 'Token OTP tidak valid atau tidak aktif!');
-                        }
-                    })
-                    .catch(error => {
-                        showMessage('error', 'Terjadi kesalahan: ' + error.message);
+            // Save user to database
+            showLoader();
+            const userRef = database.ref('users/' + userId);
+            userRef.set({
+                id: userId,
+                createdAt: Date.now(),
+                admin: false
+            }).then(() => {
+                hideLoader();
+                console.log('User ID saved to Firebase:', userId);
+            }).catch((error) => {
+                hideLoader();
+                console.error('Error saving user ID:', error);
+            });
+        } else {
+            // If user ID exists, check if it's in Firebase
+            showLoader();
+            const userRef = database.ref('users/' + userId);
+            userRef.once('value', (snapshot) => {
+                hideLoader();
+                if (!snapshot.exists()) {
+                    // User doesn't exist in Firebase, create it
+                    showLoader();
+                    userRef.set({
+                        id: userId,
+                        createdAt: Date.now(),
+                        admin: false
+                    }).then(() => {
+                        hideLoader();
+                        console.log('User ID saved to Firebase:', userId);
+                    }).catch((error) => {
+                        hideLoader();
+                        console.error('Error saving user ID:', error);
                     });
-            } else {
-                showMessage('error', 'ID Siswa tidak terdaftar!');
+                }
+            });
+        }
+        
+        // Check if user is admin (this would typically be set in the database by a super admin)
+        function checkAdminStatus() {
+            const userRef = database.ref('users/' + userId);
+            userRef.once('value', (snapshot) => {
+                const userData = snapshot.val();
+                if (userData && userData.admin === true) {
+                    isAdmin = true;
+                }
+            });
+        }
+        
+        // Load feedbacks from Firebase
+        function loadFeedbacks() {
+            showLoader();
+            const feedbacksRef = database.ref('feedbacks');
+            feedbacksRef.orderByChild('timestamp').once('value', (snapshot) => {
+                hideLoader();
+                feedbackList.innerHTML = '';
+                const feedbacks = snapshot.val();
+                
+                if (feedbacks) {
+                    Object.keys(feedbacks).reverse().forEach(key => {
+                        const feedback = feedbacks[key];
+                        createFeedbackElement(feedback, key);
+                    });
+                } else {
+                    feedbackList.innerHTML = '<div class="card"><p>Belum ada kritik atau saran. Jadilah yang pertama!</p></div>';
+                }
+            }).catch((error) => {
+                hideLoader();
+                console.error('Error loading feedbacks:', error);
+                feedbackList.innerHTML = '<div class="card"><p>Terjadi kesalahan saat memuat data.</p></div>';
+            });
+        }
+        
+        // Create feedback element for display
+        function createFeedbackElement(feedback, key) {
+            const feedbackEl = document.createElement('div');
+            feedbackEl.className = 'card feedback-item';
+            
+            // Format timestamp
+            const date = new Date(feedback.timestamp);
+            const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            
+            // Status badge
+            let statusClass = 'status-pending';
+            let statusText = 'Menunggu';
+            
+            if (feedback.status === 'process') {
+                statusClass = 'status-process';
+                statusText = 'Dalam Proses';
+            } else if (feedback.status === 'completed') {
+                statusClass = 'status-completed';
+                statusText = 'Telah Dilaksanakan';
+            } else if (feedback.status === 'rejected') {
+                statusClass = 'status-rejected';
+                statusText = 'Ditolak';
+            }
+            
+            feedbackEl.innerHTML = `
+                <div class="feedback-header">
+                    <span class="feedback-type">${feedback.type === 'kritik' ? 'Kritik' : 'Saran'}</span>
+                    <span class="feedback-category">${getCategoryName(feedback.category)}</span>
+                </div>
+                <div class="feedback-content">
+                    ${feedback.content}
+                </div>
+                <div class="feedback-footer">
+                    <div class="feedback-actions">
+                        <button class="action-btn like-btn" data-id="${key}">
+                            <span class="action-icon">👍</span> <span class="like-count">${feedback.likes || 0}</span>
+                        </button>
+                        <button class="action-btn dislike-btn" data-id="${key}">
+                            <span class="action-icon">👎</span> <span class="dislike-count">${feedback.dislikes || 0}</span>
+                        </button>
+                    </div>
+                    <div class="feedback-status">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                        <span>• ${formattedDate}</span>
+                    </div>
+                </div>
+            `;
+            
+            feedbackList.appendChild(feedbackEl);
+            
+            // Add event listeners for like/dislike buttons
+            const likeBtn = feedbackEl.querySelector('.like-btn');
+            const dislikeBtn = feedbackEl.querySelector('.dislike-btn');
+            
+            likeBtn.addEventListener('click', () => handleReaction(key, 'like'));
+            dislikeBtn.addEventListener('click', () => handleReaction(key, 'dislike'));
+            
+            // Check if user has already reacted
+            checkUserReaction(key, likeBtn, dislikeBtn);
+        }
+        
+        // Get category name in Indonesian
+        function getCategoryName(category) {
+            switch(category) {
+                case 'osis': return 'OSIS';
+                case 'sekolah': return 'Sekolah';
+                case 'fasilitas': return 'Fasilitas';
+                case 'guru': return 'Guru';
+                default: return category;
             }
         }
-
-        // Fungsi untuk submit vote
-        function submitVote() {
-            if (!selectedCandidate) {
-                showMessage('error', 'Silakan pilih calon ketua OSIS terlebih dahulu!');
+        
+        // Check if user has already reacted to a feedback
+        function checkUserReaction(feedbackId, likeBtn, dislikeBtn) {
+            const reactionsRef = database.ref('reactions/' + feedbackId + '/' + userId);
+            reactionsRef.once('value', (snapshot) => {
+                const reaction = snapshot.val();
+                if (reaction === 'like') {
+                    likeBtn.classList.add('active');
+                } else if (reaction === 'dislike') {
+                    dislikeBtn.classList.add('active');
+                }
+            });
+        }
+        
+        // Handle like/dislike reactions
+        function handleReaction(feedbackId, reactionType) {
+            const feedbackRef = database.ref('feedbacks/' + feedbackId);
+            const reactionRef = database.ref('reactions/' + feedbackId + '/' + userId);
+            
+            // Check if user has already reacted
+            reactionRef.once('value', (snapshot) => {
+                const existingReaction = snapshot.val();
+                
+                feedbackRef.transaction((feedback) => {
+                    if (feedback) {
+                        if (existingReaction === 'like') {
+                            feedback.likes = (feedback.likes || 1) - 1;
+                        } else if (existingReaction === 'dislike') {
+                            feedback.dislikes = (feedback.dislikes || 1) - 1;
+                        }
+                        
+                        if (existingReaction !== reactionType) {
+                            if (reactionType === 'like') {
+                                feedback.likes = (feedback.likes || 0) + 1;
+                            } else {
+                                feedback.dislikes = (feedback.dislikes || 0) + 1;
+                            }
+                        }
+                    }
+                    return feedback;
+                });
+                
+                if (existingReaction === reactionType) {
+                    // Remove reaction if clicking the same button again
+                    reactionRef.remove();
+                } else {
+                    // Set new reaction
+                    reactionRef.set(reactionType);
+                }
+                
+                // Reload feedbacks to update counts
+                setTimeout(loadFeedbacks, 300);
+            });
+        }
+        
+        // Submit feedback form
+        feedbackForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const type = document.getElementById('feedbackType').value;
+            const category = document.getElementById('feedbackCategory').value;
+            const content = document.getElementById('feedbackContent').value;
+            
+            if (!type || !category || !content) {
+                alert('Harap isi semua field!');
                 return;
             }
             
-            // Update status token OTP
-            database.ref('tokens/' + currentUser.token).update({
-                usedBy: currentUser.id,
-                usedAt: new Date().toISOString()
+            showLoader();
+            const feedbacksRef = database.ref('feedbacks');
+            const newFeedbackRef = feedbacksRef.push();
+            
+            newFeedbackRef.set({
+                type: type,
+                category: category,
+                content: content,
+                userId: userId,
+                timestamp: Date.now(),
+                likes: 0,
+                dislikes: 0,
+                status: 'pending'
+            }).then(() => {
+                hideLoader();
+                alert('Kritik/saran berhasil dikirim!');
+                feedbackForm.reset();
+                feedbackModal.style.display = 'none';
+                loadFeedbacks();
+            }).catch((error) => {
+                hideLoader();
+                alert('Terjadi kesalahan: ' + error.message);
             });
+        });
+        
+        // Modal functionality
+        fabButton.addEventListener('click', () => {
+            feedbackModal.style.display = 'flex';
+        });
+        
+        aboutBtn.addEventListener('click', () => {
+            aboutModal.style.display = 'flex';
+        });
+        
+        adminBtn.addEventListener('click', () => {
+            if (isAdmin) {
+                adminPanel.style.display = 'block';
+                document.querySelector('main').style.display = 'none';
+                document.querySelector('header').style.display = 'none';
+                document.querySelector('footer').style.display = 'none';
+                loadAdminData();
+            } else {
+                adminLoginModal.style.display = 'flex';
+            }
+        });
+        
+        closeAboutModal.addEventListener('click', () => {
+            aboutModal.style.display = 'none';
+        });
+        
+        closeAdminModal.addEventListener('click', () => {
+            adminLoginModal.style.display = 'none';
+        });
+        
+        closeFeedbackModal.addEventListener('click', () => {
+            feedbackModal.style.display = 'none';
+        });
+        
+        // Admin login form
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // In a real application, you would verify credentials properly
+            // For demo purposes, we'll use a simple check
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
             
-            // Update status voting pemilih
-            database.ref('voters/' + currentUser.id).set({
-                hasVoted: true,
-                votedFor: selectedCandidate,
-                timestamp: new Date().toISOString(),
-                name: currentUser.name,
-                class: currentUser.class
-            });
-            
-            // Update jumlah vote untuk kandidat
-            database.ref('candidates/' + selectedCandidate + '/votes').transaction(currentVotes => {
-                return (currentVotes || 0) + 1;
-            });
-            
-            // Update daftar pemilih untuk kandidat
-            database.ref('candidates/' + selectedCandidate + '/voters/' + currentUser.id).set({
-                name: currentUser.name,
-                class: currentUser.class
-            });
-            
-            // Tampilkan halaman terima kasih
-            showThankYou();
-        }
-
-        // Fungsi untuk menampilkan halaman terima kasih
-        function showThankYou() {
-            votingSection.classList.add('hidden');
-            loginSection.classList.add('hidden');
-            resultsSection.classList.remove('hidden');
-        }
-
-        // Fungsi untuk menampilkan pesan
-        function showMessage(type, text) {
-            // Hapus pesan sebelumnya
-            const existingMessages = document.querySelectorAll('.message');
-            existingMessages.forEach(msg => msg.remove());
-            
-            // Buat pesan baru
-            const message = document.createElement('div');
-            message.className = `message ${type}`;
-            message.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${text}`;
-            
-            // Tambahkan pesan ke bagian login
-            loginSection.appendChild(message);
-            
-            // Hapus pesan setelah 5 detik
-            setTimeout(() => {
-                message.remove();
-            }, 5000);
-        }
-
-        // Fungsi logout
-        function logout() {
-            currentUser = null;
-            selectedCandidate = null;
-            studentIdInput.value = '';
-            otpInput.value = '';
-            candidateCards.forEach(card => card.classList.remove('selected'));
-            
-            // Tutup semua visi misi yang terbuka
-            document.querySelectorAll('.vision-mission-content').forEach(content => {
-                content.classList.remove('expanded');
-            });
-            document.querySelectorAll('.vision-mission-btn').forEach(btn => {
-                btn.innerHTML = '<i class="fas fa-book-open"></i> Lihat Visi & Misi';
-            });
-            
-            votingSection.classList.add('hidden');
-            resultsSection.classList.add('hidden');
-            loginSection.classList.remove('hidden');
-        }
-
-        // Inisialisasi data kandidat jika belum ada
-        function initializeCandidates() {
-            database.ref('candidates').once('value')
-                .then(snapshot => {
-                    if (!snapshot.exists()) {
-                        const candidates = {
-                            1: { name: "Atha Pagoh Llogani", votes: 0, voters: {} },
-                            2: { name: "Sofia Kamila Harahap", votes: 0, voters: {} },
-                            3: { name: "Adelia Faranisa Zava", votes: 0, voters: {} },
-                            4: { name: "Nadhira Feliza", votes: 0, voters: {} },
-                            5: { name: "Alisya Dia Zahira", votes: 0, voters: {} }
-                        };
-                        database.ref('candidates').set(candidates);
-                    } else {
-                        // Perbaiki data jika urutannya salah
-                        snapshot.forEach(childSnapshot => {
-                            const candidate = childSnapshot.val();
-                            if (candidate.name === "Sofia Kamila Harahap" && childSnapshot.key === "1") {
-                                // Jika data lama masih ada, perbaiki dengan menukar data
-                                database.ref('candidates').set({
-                                    1: { name: "Atha Pagoh Llogani", votes: candidate.votes || 0, voters: candidate.voters || {} },
-                                    2: { name: "Sofia Kamila Harahap", votes: 0, voters: {} },
-                                    3: { name: "Adelia Faranisa Zava", votes: 0, voters: {} },
-                                    4: { name: "Nadhira Feliza", votes: 0, voters: {} },
-                                    5: { name: "Alisya Dia Zahira", votes: 0, voters: {} }
-                                });
-                            }
-                        });
+            if (username === 'admin' && password === 'admin123') {
+                // Grant admin access (in a real app, this would be set in the database)
+                showLoader();
+                const userRef = database.ref('users/' + userId);
+                userRef.update({ admin: true }).then(() => {
+                    hideLoader();
+                    isAdmin = true;
+                    adminLoginModal.style.display = 'none';
+                    alert('Login admin berhasil!');
+                }).catch((error) => {
+                    hideLoader();
+                    alert('Terjadi kesalahan: ' + error.message);
+                });
+            } else {
+                alert('Username atau password salah!');
+            }
+        });
+        
+        // Logout from admin panel
+        logoutBtn.addEventListener('click', () => {
+            adminPanel.style.display = 'none';
+            document.querySelector('main').style.display = 'block';
+            document.querySelector('header').style.display = 'block';
+            document.querySelector('footer').style.display = 'block';
+        });
+        
+        // Admin tabs
+        adminTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                adminTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show corresponding content
+                adminContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === tabId + 'Tab') {
+                        content.classList.add('active');
                     }
                 });
+                
+                // Load data for the tab
+                if (tabId === 'users') {
+                    loadUsers();
+                }
+            });
+        });
+        
+        // Load admin data
+        function loadAdminData() {
+            loadAdminFeedbacks();
+            loadUsers();
         }
-
-        // Jalankan inisialisasi saat halaman dimuat
-        initializeCandidates();
+        
+        // Load feedbacks for admin
+        function loadAdminFeedbacks() {
+            showLoader();
+            const feedbacksRef = database.ref('feedbacks');
+            feedbacksRef.orderByChild('timestamp').once('value', (snapshot) => {
+                hideLoader();
+                feedbackAdminList.innerHTML = '';
+                const feedbacks = snapshot.val();
+                
+                if (feedbacks) {
+                    Object.keys(feedbacks).reverse().forEach(key => {
+                        const feedback = feedbacks[key];
+                        createAdminFeedbackElement(feedback, key);
+                    });
+                } else {
+                    feedbackAdminList.innerHTML = '<div class="feedback-admin-item"><p>Belum ada kritik atau saran.</p></div>';
+                }
+            }).catch((error) => {
+                hideLoader();
+                console.error('Error loading admin feedbacks:', error);
+                feedbackAdminList.innerHTML = '<div class="feedback-admin-item"><p>Terjadi kesalahan saat memuat data.</p></div>';
+            });
+        }
+        
+        // Create admin feedback element
+        function createAdminFeedbackElement(feedback, key) {
+            const feedbackEl = document.createElement('div');
+            feedbackEl.className = 'feedback-admin-item';
+            
+            // Format timestamp
+            const date = new Date(feedback.timestamp);
+            const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            
+            feedbackEl.innerHTML = `
+                <div class="feedback-admin-info">
+                    <div class="feedback-admin-content">${feedback.content}</div>
+                    <div class="feedback-admin-meta">
+                        ${feedback.type === 'kritik' ? 'Kritik' : 'Saran'} • ${getCategoryName(feedback.category)} • ${formattedDate}
+                    </div>
+                </div>
+                <div class="feedback-admin-actions">
+                    <select class="status-select" data-id="${key}">
+                        <option value="pending" ${feedback.status === 'pending' ? 'selected' : ''}>Menunggu</option>
+                        <option value="process" ${feedback.status === 'process' ? 'selected' : ''}>Dalam Proses</option>
+                        <option value="completed" ${feedback.status === 'completed' ? 'selected' : ''}>Telah Dilaksanakan</option>
+                        <option value="rejected" ${feedback.status === 'rejected' ? 'selected' : ''}>Ditolak</option>
+                    </select>
+                </div>
+            `;
+            
+            feedbackAdminList.appendChild(feedbackEl);
+            
+            // Add event listener for status change
+            const statusSelect = feedbackEl.querySelector('.status-select');
+            statusSelect.addEventListener('change', (e) => {
+                const newStatus = e.target.value;
+                updateFeedbackStatus(key, newStatus);
+            });
+        }
+        
+        // Update feedback status
+        function updateFeedbackStatus(feedbackId, status) {
+            showLoader();
+            const feedbackRef = database.ref('feedbacks/' + feedbackId + '/status');
+            feedbackRef.set(status).then(() => {
+                hideLoader();
+                alert('Status berhasil diperbarui!');
+                loadAdminFeedbacks();
+                loadFeedbacks(); // Also update the public view
+            }).catch((error) => {
+                hideLoader();
+                alert('Terjadi kesalahan: ' + error.message);
+            });
+        }
+        
+        // Load users for admin
+        function loadUsers() {
+            showLoader();
+            const usersRef = database.ref('users');
+            usersRef.once('value', (snapshot) => {
+                hideLoader();
+                userList.innerHTML = '';
+                const users = snapshot.val();
+                
+                if (users) {
+                    Object.keys(users).forEach(key => {
+                        const user = users[key];
+                        createUserElement(user, key);
+                    });
+                } else {
+                    userList.innerHTML = '<div class="user-item"><p>Belum ada pengguna.</p></div>';
+                }
+            }).catch((error) => {
+                hideLoader();
+                console.error('Error loading users:', error);
+                userList.innerHTML = '<div class="user-item"><p>Terjadi kesalahan saat memuat data.</p></div>';
+            });
+        }
+        
+        // Create user element for admin
+        function createUserElement(user, key) {
+            const userEl = document.createElement('div');
+            userEl.className = 'user-item';
+            
+            // Format timestamp
+            const date = new Date(user.createdAt);
+            const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            
+            userEl.innerHTML = `
+                <div class="user-info">
+                    <div class="user-name">
+                        Pengguna ${user.admin ? '<span class="admin-badge">Admin</span>' : ''}
+                    </div>
+                    <div class="user-id">ID: ${user.id} • Dibuat: ${formattedDate}</div>
+                </div>
+                <div class="user-actions">
+                    <button class="btn btn-outline toggle-admin-btn" data-id="${key}" data-admin="${user.admin}">
+                        ${user.admin ? 'Cabut Admin' : 'Jadikan Admin'}
+                    </button>
+                </div>
+            `;
+            
+            userList.appendChild(userEl);
+            
+            // Add event listener for toggle admin button
+            const toggleAdminBtn = userEl.querySelector('.toggle-admin-btn');
+            toggleAdminBtn.addEventListener('click', () => {
+                toggleAdminStatus(key, user.admin === true);
+            });
+        }
+        
+        // Toggle admin status
+        function toggleAdminStatus(userId, isCurrentlyAdmin) {
+            showLoader();
+            const userRef = database.ref('users/' + userId + '/admin');
+            userRef.set(!isCurrentlyAdmin).then(() => {
+                hideLoader();
+                alert('Status admin berhasil diubah!');
+                loadUsers();
+            }).catch((error) => {
+                hideLoader();
+                alert('Terjadi kesalahan: ' + error.message);
+            });
+        }
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === aboutModal) {
+                aboutModal.style.display = 'none';
+            }
+            if (e.target === adminLoginModal) {
+                adminLoginModal.style.display = 'none';
+            }
+            if (e.target === feedbackModal) {
+                feedbackModal.style.display = 'none';
+            }
+        });
+        
+        // Initialize the app
+        checkAdminStatus();
+        loadFeedbacks();
     </script>
 </body>
 </html>
